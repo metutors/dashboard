@@ -1,23 +1,19 @@
 "use client";
 
-import { Download, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 interface DashboardHeaderProps {
   projectName: string;
   lastUpdated: string | null;
   loading: boolean;
-  exporting: boolean;
   onPullLive: () => void;
-  onExport: () => void;
 }
 
 export function DashboardHeader({
   projectName,
   lastUpdated,
   loading,
-  exporting,
   onPullLive,
-  onExport,
 }: DashboardHeaderProps) {
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -51,16 +47,6 @@ export function DashboardHeader({
             aria-hidden
           />
           {loading ? "Loading..." : "Pull Live"}
-        </button>
-
-        <button
-          type="button"
-          onClick={onExport}
-          disabled={loading || exporting}
-          className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <Download className="h-3.5 w-3.5" aria-hidden />
-          {exporting ? "Exporting..." : "Export to Excel"}
         </button>
       </div>
     </header>

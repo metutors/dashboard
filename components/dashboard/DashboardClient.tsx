@@ -19,7 +19,6 @@ export function DashboardClient() {
   const [module, setModule] = useState("");
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -109,57 +108,13 @@ export function DashboardClient() {
     void fetchDashboard({ refresh: true });
   };
 
-  const handleExport = async () => {
-    setExporting(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams();
-      if (people) params.set("people", people);
-      if (module) params.set("module", module);
-
-      const response = await fetch(`/api/jira/export?${params.toString()}`, {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        const payload = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(payload?.error || "Export failed.");
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      const disposition = response.headers.get("Content-Disposition");
-      const match = disposition?.match(/filename="(.+)"/);
-      anchor.href = url;
-      anchor.download = match?.[1] ?? "me-tutors-dashboard.xlsx";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-      setStatusMessage("Excel export ready");
-    } catch (exportError) {
-      setError(
-        exportError instanceof Error
-          ? exportError.message
-          : "Unable to export dashboard data.",
-      );
-    } finally {
-      setExporting(false);
-    }
-  };
-
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <DashboardHeader
         projectName={data?.projectName ?? "ME Tutors"}
         lastUpdated={data?.lastUpdatedFormatted ?? null}
         loading={loading}
-        exporting={exporting}
         onPullLive={handlePullLive}
-        onExport={handleExport}
       />
 
       <DashboardFilters

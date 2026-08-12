@@ -149,7 +149,19 @@ export async function getAllIssues(
 }
 
 export function buildProjectJql(extraClauses: string[] = []): string {
-  const { projectKey } = getJiraConfig();
-  const clauses = [`project = ${projectKey}`, ...extraClauses.filter(Boolean)];
+  const { projectKey, excludeBacklog } = getJiraConfig();
+  const clauses = [
+    `project = ${projectKey}`,
+    // Board "Backlog" = not in an active/future sprint and still unfinished.
+    // Those issues often still have a closed sprint on them, so "sprint is not
+    // EMPTY" is not enough. Keep active + future sprint work, plus anything
+    // already resolved (needed for average close time).
+    ...(excludeBacklog
+      ? [
+          "(sprint in openSprints() OR sprint in futureSprints() OR resolution is not EMPTY)",
+        ]
+      : []),
+    ...extraClauses.filter(Boolean),
+  ];
   return `${clauses.join(" AND ")} ORDER BY updated DESC`;
 }

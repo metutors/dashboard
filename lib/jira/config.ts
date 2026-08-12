@@ -28,6 +28,7 @@ export interface JiraConfig {
   projectKey: string;
   projectName: string;
   cacheMinutes: number;
+  excludeBacklog: boolean;
   moduleField: string | null;
   ticketSourceField: string | null;
   moduleLabels: string[];
@@ -60,6 +61,8 @@ export function getJiraConfig(): JiraConfig {
     projectKey: required("JIRA_PROJECT_KEY"),
     projectName: optional("JIRA_PROJECT_NAME", required("JIRA_PROJECT_KEY")),
     cacheMinutes: Math.max(1, Number(optional("JIRA_CACHE_MINUTES", "5")) || 5),
+    // Default true: ignore board Backlog issues (no sprint assigned).
+    excludeBacklog: optional("JIRA_EXCLUDE_BACKLOG", "true").toLowerCase() !== "false",
     moduleField: optional("JIRA_MODULE_FIELD") || null,
     ticketSourceField: optional("JIRA_TICKET_SOURCE_FIELD") || null,
     moduleLabels: csv("JIRA_MODULE_LABELS"),
