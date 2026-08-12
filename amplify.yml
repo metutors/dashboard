@@ -1,0 +1,20 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        # Amplify injects console environment variables into the build container
+        # only. Next.js route handlers read process.env at request time inside the
+        # SSR compute function, so the JIRA_* values must be written into
+        # .env.production to survive into the deployed runtime.
+        # Existing surrounding quotes are stripped first so values that were
+        # pasted into the console already quoted are not double-wrapped.
+        - env | grep -E '^JIRA_' | sed -E 's/^([^=]+)="(.*)"$/\1=\2/' | sed -E 's/^([^=]+)=(.*)$/\1="\2"/' > .env.production
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
