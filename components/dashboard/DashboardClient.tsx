@@ -7,7 +7,6 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DistributionCharts } from "@/components/dashboard/DistributionCharts";
 import { KpiCards } from "@/components/dashboard/KpiCards";
 import { LoadingState } from "@/components/dashboard/LoadingState";
-import { SectionHeading } from "@/components/dashboard/SectionHeading";
 import { StatusSection } from "@/components/dashboard/StatusSection";
 import { TeamSplitSection } from "@/components/dashboard/TeamSplit";
 import type { DashboardData } from "@/types/jira";
@@ -154,10 +153,21 @@ export function DashboardClient() {
 
           <DistributionCharts data={data} />
 
+          <TeamSplitSection teamSplit={data.teamSplit} />
+
           <StatusSection
             title="Bug Status"
             accent="red"
             counts={data.bugStatus}
+          />
+
+          <AverageCloseTimeCard
+            title="Avg Time to Close — Bug"
+            tone="bug"
+            days={data.averageCloseTime.bugs}
+            count={data.averageCloseTime.bugsCount}
+            countLabel="resolved bugs"
+            issues={data.resolvedBugs}
           />
 
           <StatusSection
@@ -166,29 +176,14 @@ export function DashboardClient() {
             counts={data.taskStatus}
           />
 
-          <TeamSplitSection teamSplit={data.teamSplit} />
-
-          <section className="space-y-3">
-            <SectionHeading title="Avg Time to Close" accent="slate" />
-
-            <AverageCloseTimeCard
-              title="Avg Time to Close — Bug"
-              tone="bug"
-              days={data.averageCloseTime.bugs}
-              count={data.averageCloseTime.bugsCount}
-              countLabel="resolved bugs"
-              issues={data.resolvedBugs}
-            />
-
-            <AverageCloseTimeCard
-              title="Avg Time to Close — Task"
-              tone="task"
-              days={data.averageCloseTime.tasks}
-              count={data.averageCloseTime.tasksCount}
-              countLabel="resolved tasks"
-              issues={data.resolvedTasks}
-            />
-          </section>
+          <AverageCloseTimeCard
+            title="Avg Time to Close — Task"
+            tone="task"
+            days={data.averageCloseTime.tasks}
+            count={data.averageCloseTime.tasksCount}
+            countLabel="resolved tasks"
+            issues={data.resolvedTasks}
+          />
 
           {data.configNotes.length ? (
             <details className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
