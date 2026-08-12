@@ -5,7 +5,6 @@ import { AverageCloseTimeCard } from "@/components/dashboard/AverageCloseTime";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DistributionCharts } from "@/components/dashboard/DistributionCharts";
-import { FilterBehavior } from "@/components/dashboard/FilterBehavior";
 import { KpiCards } from "@/components/dashboard/KpiCards";
 import { LoadingState } from "@/components/dashboard/LoadingState";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
@@ -172,11 +171,6 @@ export function DashboardClient() {
         onModuleChange={handleModuleChange}
         onClear={handleClearFilters}
         disabled={loading && !data}
-      />
-
-      <FilterBehavior
-        people={data?.filters.people ?? null}
-        module={data?.filters.module ?? null}
       />
 
       {statusMessage ? (

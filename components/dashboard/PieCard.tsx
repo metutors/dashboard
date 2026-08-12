@@ -63,10 +63,17 @@ export function PieCard({ title, centerLabel, slices }: PieCardProps) {
                 }}
                 contentStyle={{
                   borderRadius: 8,
-                  border: "1px solid #e2e8f0",
+                  border: "none",
+                  backgroundColor: "#0f172a",
+                  color: "#ffffff",
                   fontSize: 12,
-                  boxShadow: "0 4px 12px rgba(15,23,42,0.08)",
+                  boxShadow: "0 4px 12px rgba(15,23,42,0.25)",
                 }}
+                itemStyle={{ color: "#ffffff" }}
+                labelStyle={{ color: "#ffffff" }}
+                wrapperStyle={{ zIndex: 30, outline: "none" }}
+                offset={14}
+                allowEscapeViewBox={{ x: true, y: true }}
               />
               <Legend
                 verticalAlign="bottom"
@@ -80,7 +87,7 @@ export function PieCard({ title, centerLabel, slices }: PieCardProps) {
             </PieChart>
           </ResponsiveContainer>
 
-          <div className="pointer-events-none absolute inset-x-0 top-[45%] -translate-y-1/2 text-center">
+          <div className="pointer-events-none absolute inset-x-0 top-[45%] z-0 -translate-y-1/2 text-center">
             <p className="text-xl font-extrabold tabular-nums text-slate-800">
               {total}
             </p>
