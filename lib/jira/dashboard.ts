@@ -327,13 +327,13 @@ function buildConfigNotes(): string[] {
 
   if (!config.moduleField) {
     notes.push(
-      "JIRA_MODULE_FIELD is not set — System Area / Module falls back to Components and Labels. Set a custom field ID in .env, or narrow the list with JIRA_MODULE_LABELS.",
+      "System Area / Module uses Components and Labels (see MODULE_LABELS in lib/jira/constants.ts). Set JIRA_MODULE_FIELD if you use a custom field.",
     );
   }
 
   if (!config.ticketSourceField) {
     notes.push(
-      "JIRA_TICKET_SOURCE_FIELD is not set — People / Ticket Source filter falls back to Assignee. Set the custom field ID in .env.",
+      "People / Ticket Source falls back to Assignee. Set JIRA_TICKET_SOURCE_FIELD if you use a custom field.",
     );
   }
 

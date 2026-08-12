@@ -1,3 +1,12 @@
+import {
+  DEFAULT_ISSUE_FIELDS,
+  ISSUE_TYPES,
+  MODULE_LABELS,
+  PROJECT_DEFAULTS,
+  STATUS_MAPPING,
+  TEAMS,
+} from "./constants";
+
 function required(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) {
@@ -10,15 +19,6 @@ function optional(name: string, fallback = ""): string {
   const value = process.env[name]?.trim();
   if (!value) return fallback;
   return value.replace(/^["']|["']$/g, "");
-}
-
-function csv(name: string, fallback: string[] = []): string[] {
-  const raw = optional(name);
-  if (!raw) return fallback;
-  return raw
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
 }
 
 export interface JiraConfig {
@@ -53,32 +53,32 @@ export function getJiraConfig(): JiraConfig {
   if (cachedConfig) return cachedConfig;
 
   const url = required("JIRA_URL").replace(/\/$/, "");
+  const projectKey = required("JIRA_PROJECT_KEY");
 
   cachedConfig = {
     url,
     email: required("JIRA_EMAIL"),
     apiToken: required("JIRA_API_TOKEN"),
-    projectKey: required("JIRA_PROJECT_KEY"),
-    projectName: optional("JIRA_PROJECT_NAME", required("JIRA_PROJECT_KEY")),
-    cacheMinutes: Math.max(1, Number(optional("JIRA_CACHE_MINUTES", "5")) || 5),
-    // Default true: ignore board Backlog issues (no sprint assigned).
-    excludeBacklog: optional("JIRA_EXCLUDE_BACKLOG", "true").toLowerCase() !== "false",
+    projectKey,
+    projectName: optional("JIRA_PROJECT_NAME", PROJECT_DEFAULTS.projectName || projectKey),
+    cacheMinutes: PROJECT_DEFAULTS.cacheMinutes,
+    excludeBacklog: PROJECT_DEFAULTS.excludeBacklog,
     moduleField: optional("JIRA_MODULE_FIELD") || null,
     ticketSourceField: optional("JIRA_TICKET_SOURCE_FIELD") || null,
-    moduleLabels: csv("JIRA_MODULE_LABELS"),
-    bugTypes: csv("JIRA_BUG_TYPES", ["Bug"]),
-    taskTypes: csv("JIRA_TASK_TYPES", ["Task"]),
+    moduleLabels: [...MODULE_LABELS],
+    bugTypes: [...ISSUE_TYPES.bug],
+    taskTypes: [...ISSUE_TYPES.task],
     statusMapping: {
-      done: csv("JIRA_STATUS_DONE", ["Done"]),
-      inProgress: csv("JIRA_STATUS_IN_PROGRESS", ["In Progress"]),
-      onHold: csv("JIRA_STATUS_ON_HOLD", ["On Hold"]),
-      readyForQA: csv("JIRA_STATUS_READY_FOR_QA", ["Ready for QA"]),
-      todo: csv("JIRA_STATUS_TODO", ["To Do"]),
+      done: [...STATUS_MAPPING.done],
+      inProgress: [...STATUS_MAPPING.inProgress],
+      onHold: [...STATUS_MAPPING.onHold],
+      readyForQA: [...STATUS_MAPPING.readyForQA],
+      todo: [...STATUS_MAPPING.todo],
     },
-    backendUsers: csv("JIRA_BACKEND_USERS"),
-    frontendUsers: csv("JIRA_FRONTEND_USERS"),
-    backendLabel: optional("JIRA_BACKEND_LABEL", "BACKEND"),
-    frontendLabel: optional("JIRA_FRONTEND_LABEL", "FRONTEND"),
+    backendUsers: [...TEAMS.backend.users],
+    frontendUsers: [...TEAMS.frontend.users],
+    backendLabel: TEAMS.backend.label,
+    frontendLabel: TEAMS.frontend.label,
   };
 
   return cachedConfig;
@@ -89,20 +89,7 @@ export function getBrowseUrl(issueKey: string): string {
   return `${url}/browse/${issueKey}`;
 }
 
-export const DEFAULT_ISSUE_FIELDS = [
-  "key",
-  "summary",
-  "issuetype",
-  "status",
-  "assignee",
-  "reporter",
-  "created",
-  "updated",
-  "resolutiondate",
-  "priority",
-  "components",
-  "labels",
-] as const;
+export { DEFAULT_ISSUE_FIELDS };
 
 export function getConfiguredCustomFields(): string[] {
   const config = getJiraConfig();

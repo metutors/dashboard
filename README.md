@@ -7,7 +7,6 @@ Next.js App Router dashboard that pulls live issue metrics from Jira Cloud and s
 - Next.js (App Router) + TypeScript + Tailwind CSS
 - Jira Cloud REST API v3 (server-side only)
 - Recharts for pie charts
-- Excel export via `exceljs`
 
 ## How it works
 
@@ -41,26 +40,18 @@ Default JQL:
 
 ```sql
 project = MTMVPII
-  AND (
-    sprint in openSprints()
-    OR sprint in futureSprints()
-    OR resolution is not EMPTY
-  )
+  AND (sprint in openSprints() OR sprint in futureSprints())
 ORDER BY updated DESC
 ```
 
 - `project = JIRA_PROJECT_KEY` limits results to this project.
-- **Backlog exclusion (default on):** the board “Backlog” section is unfinished work that is **not** in an active or future sprint. Those tickets often still have an old closed sprint attached, so a simple `sprint is not EMPTY` filter is not enough. The query keeps:
-  - issues in **open** sprints (e.g. Week 28)
-  - issues in **future** sprints
-  - already **resolved** issues (so average time-to-close still works)
-- Toggle with `JIRA_EXCLUDE_BACKLOG=true|false` (default `true`). Set `false` to count every project ticket again.
+- **Sprint-only (default on):** counts only tickets in the active/future sprint (e.g. Week 28 = 203). Board Backlog and resolved tickets outside that sprint are excluded. Controlled in `lib/jira/constants.ts` → `PROJECT_DEFAULTS.excludeBacklog`.
 
-Only the fields needed for the dashboard are requested (summary, type, status, assignee, dates, labels, components, optional custom fields).
+Only the fields needed for the dashboard are requested.
 
 ### 3. Caching
 
-Fetched issues are cached in memory on the server for `JIRA_CACHE_MINUTES` (default 5).
+Fetched issues are cached in memory for `PROJECT_DEFAULTS.cacheMinutes` (5 minutes).
 
 - Normal loads reuse the cache.
 - **Pull Live** sends `refresh=1`, which bypasses the cache and re-fetches from Jira.
@@ -71,55 +62,49 @@ UI filters are applied **after** issues are loaded (no page reload):
 
 | Filter | Meaning |
 | --- | --- |
-| People / Ticket Source | Custom field `JIRA_TICKET_SOURCE_FIELD` if set; otherwise assignee display name |
-| System Area / Module | Custom field `JIRA_MODULE_FIELD` if set; otherwise components/labels (optionally limited by `JIRA_MODULE_LABELS`) |
-
-Both filters can be combined. Options are built from the loaded issue set.
+| People / Ticket Source | Custom field `JIRA_TICKET_SOURCE_FIELD` if set; otherwise assignee |
+| System Area / Module | Custom field `JIRA_MODULE_FIELD` if set; otherwise labels from `MODULE_LABELS` |
 
 ### 5. Metrics
 
-From the filtered issue list the server calculates:
+Calculated from the filtered issue list. Mappings live in `lib/jira/constants.ts`:
 
-| Metric | Rule |
+| Metric | Source |
 | --- | --- |
-| Total | Count of matching issues |
-| Bugs / Tasks | Issue type names from `JIRA_BUG_TYPES` / `JIRA_TASK_TYPES` |
-| Bug / Task status | Status names mapped via `JIRA_STATUS_*` env vars |
-| Team split | Assignee matched against `JIRA_BACKEND_USERS` / `JIRA_FRONTEND_USERS`; everyone else → Other |
-| Avg time to close | Average of `resolutiondate − created` for resolved bugs/tasks (days, 1 decimal) |
-| Resolved lists | Resolved bugs/tasks sorted by time-to-close descending; issue keys link to `JIRA_URL/browse/{key}` |
+| Bugs / Tasks | `ISSUE_TYPES` |
+| Status buckets | `STATUS_MAPPING` |
+| Team split | `TEAMS` |
+| Avg time to close | `resolutiondate − created` for resolved issues |
+| Issue links | `JIRA_URL/browse/{key}` |
 
-### 6. Excel export
+### 6. AWS Amplify
 
-`GET /api/jira/export` uses the same filters, builds a workbook (Summary + Issues sheets) with `exceljs`, and returns an `.xlsx` download.
-
-### 7. AWS Amplify
-
-Amplify injects console env vars into the **build** container only. `amplify.yml` writes every `JIRA_*` value into `.env.production` during build so route handlers can read them at runtime:
-
-```yaml
-- env | grep -E '^JIRA_' | sed -E 's/^([^=]+)="(.*)"$/\1=\2/' | sed -E 's/^([^=]+)=(.*)$/\1="\2"/' > .env.production
-```
+Amplify injects console env vars into the **build** container only. `amplify.yml` writes every `JIRA_*` value into `.env.production` during build so route handlers can read them at runtime.
 
 ## Setup
 
-1. Copy environment variables:
+1. Copy env file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-2. Fill in `.env.local` (minimum):
+2. Fill in **required** values only:
 
 ```env
 JIRA_URL=https://yourcompany.atlassian.net
 JIRA_EMAIL=your-email@company.com
 JIRA_API_TOKEN=your-api-token
 JIRA_PROJECT_KEY=MTMVPII
-JIRA_EXCLUDE_BACKLOG=true
 ```
 
-Optional settings (status mapping, team members, custom fields, module labels) are listed in `.env.example`.
+Optional: `JIRA_PROJECT_NAME`, `JIRA_MODULE_FIELD`, `JIRA_TICKET_SOURCE_FIELD`.
+
+Everything else (statuses, teams, module labels, bug/task types, backlog exclusion, cache TTL) is in:
+
+```text
+lib/jira/constants.ts
+```
 
 3. Install and run:
 
@@ -128,36 +113,38 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000/dashboard](http://localhost:3000/dashboard) (or the port you started with).
+Open [http://localhost:3000/dashboard](http://localhost:3000/dashboard).
 
 ## API Routes
 
 | Route | Description |
 | --- | --- |
-| `GET /api/jira/test` | Verifies Jira authentication via `/rest/api/3/myself` |
-| `GET /api/jira/dashboard` | Returns normalized dashboard metrics |
-| `GET /api/jira/export` | Downloads an Excel workbook for the current filters |
+| `GET /api/jira/test` | Verifies Jira authentication |
+| `GET /api/jira/dashboard` | Returns dashboard metrics |
 
 ### Dashboard query params
 
 - `people` — People / Ticket Source filter
 - `module` — System Area / Module filter
-- `refresh=1` — Bypass server cache (used by **Pull Live**)
+- `refresh=1` — Bypass server cache (**Pull Live**)
 
 ## Project layout
 
 ```text
 app/
-  api/jira/test|dashboard|export/route.ts   # server-only Jira API
+  api/jira/test|dashboard|export/route.ts
   dashboard/page.tsx
-components/dashboard/                       # UI cards, charts, filters
-lib/jira/                                   # client, search, metrics, cache, excel
+components/dashboard/
+lib/jira/
+  constants.ts   # statuses, teams, types, module labels (edit here)
+  config.ts      # reads env + merges constants
+  client.ts | issues.ts | dashboard.ts | cache.ts
 types/jira.ts
-amplify.yml                                 # Amplify build + env wiring
+amplify.yml
 ```
 
 ## Security
 
-`JIRA_EMAIL` and `JIRA_API_TOKEN` are server-only. They are never exposed as `NEXT_PUBLIC_*` variables or returned by API responses.
+`JIRA_EMAIL` and `JIRA_API_TOKEN` are server-only. Never use `NEXT_PUBLIC_*` for them.
 
-Client components call Next.js route handlers only. Route handlers call Jira.
+Client → Next.js route handlers → Jira. Never client → Jira.

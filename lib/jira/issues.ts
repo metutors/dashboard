@@ -14,7 +14,7 @@ let preferredSearchMode: SearchMode | null = null;
 
 function buildFieldsParam(extraFields: string[] = []): string[] {
   const fields = new Set<string>([
-    ...DEFAULT_ISSUE_FIELDS.filter((field) => field !== "key"),
+    ...DEFAULT_ISSUE_FIELDS,
     ...getConfiguredCustomFields(),
     ...extraFields,
   ]);
@@ -152,14 +152,10 @@ export function buildProjectJql(extraClauses: string[] = []): string {
   const { projectKey, excludeBacklog } = getJiraConfig();
   const clauses = [
     `project = ${projectKey}`,
-    // Board "Backlog" = not in an active/future sprint and still unfinished.
-    // Those issues often still have a closed sprint on them, so "sprint is not
-    // EMPTY" is not enough. Keep active + future sprint work, plus anything
-    // already resolved (needed for average close time).
+    // Match the board sprint only (e.g. Week 28). Excludes Backlog and any
+    // resolved tickets that are not in an open/future sprint.
     ...(excludeBacklog
-      ? [
-          "(sprint in openSprints() OR sprint in futureSprints() OR resolution is not EMPTY)",
-        ]
+      ? ["(sprint in openSprints() OR sprint in futureSprints())"]
       : []),
     ...extraClauses.filter(Boolean),
   ];
