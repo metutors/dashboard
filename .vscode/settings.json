@@ -1,0 +1,13 @@
+{
+ "workbench.activityBar.location": "default",
+ "workbench.activityBar.orientation": "vertical",
+ "workbench.sideBar.location": "left",
+ "workbench.iconTheme": "material-icon-theme",
+ "workbench.tree.indent": 8,
+ "workbench.tree.renderIndentGuides": "onHover",
+ "explorer.compactFolders": true,
+ "explorer.sortOrder": "type",
+ "explorer.decorations.badges": true,
+ "explorer.decorations.colors": true
+}
+

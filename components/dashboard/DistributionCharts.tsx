@@ -1,0 +1,89 @@
+"use client";
+
+import { PieCard, type PieSlice } from "@/components/dashboard/PieCard";
+import { SectionHeading } from "@/components/dashboard/SectionHeading";
+import type { DashboardData } from "@/types/jira";
+
+const CHART_COLORS = {
+  bugs: "#e11d48",
+  tasks: "#0284c7",
+  done: "#059669",
+  inProgress: "#0284c7",
+  onHold: "#7c3aed",
+  readyForQA: "#f97316",
+  todo: "#94a3b8",
+  backend: "#7c3aed",
+  frontend: "#059669",
+  other: "#cbd5e1",
+} as const;
+
+function statusSlices(counts: DashboardData["bugStatus"]): PieSlice[] {
+  return [
+    { name: "Done", value: counts.done, color: CHART_COLORS.done },
+    {
+      name: "In Progress",
+      value: counts.inProgress,
+      color: CHART_COLORS.inProgress,
+    },
+    { name: "On Hold", value: counts.onHold, color: CHART_COLORS.onHold },
+    {
+      name: "Ready for QA",
+      value: counts.readyForQA,
+      color: CHART_COLORS.readyForQA,
+    },
+    { name: "To Do", value: counts.todo, color: CHART_COLORS.todo },
+  ];
+}
+
+function shortTeamLabel(label: string): string {
+  return label.split("—")[0]?.trim() || label;
+}
+
+export function DistributionCharts({ data }: { data: DashboardData }) {
+  const typeSlices: PieSlice[] = [
+    { name: "Bugs", value: data.bugs, color: CHART_COLORS.bugs },
+    { name: "Tasks", value: data.tasks, color: CHART_COLORS.tasks },
+  ];
+
+  const teamSlices: PieSlice[] = [
+    {
+      name: shortTeamLabel(data.teamSplit.backendLabel),
+      value: data.teamSplit.backend,
+      color: CHART_COLORS.backend,
+    },
+    {
+      name: shortTeamLabel(data.teamSplit.frontendLabel),
+      value: data.teamSplit.frontend,
+      color: CHART_COLORS.frontend,
+    },
+    { name: "Other", value: data.teamSplit.other, color: CHART_COLORS.other },
+  ];
+
+  return (
+    <section className="space-y-3">
+      <SectionHeading title="Visual Breakdown" accent="violet" />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <PieCard
+          title="Bugs vs Tasks"
+          centerLabel="Tickets"
+          slices={typeSlices}
+        />
+        <PieCard
+          title="Bug Status"
+          centerLabel="Bugs"
+          slices={statusSlices(data.bugStatus)}
+        />
+        <PieCard
+          title="Task Status"
+          centerLabel="Tasks"
+          slices={statusSlices(data.taskStatus)}
+        />
+        <PieCard
+          title="Team Split"
+          centerLabel="Tickets"
+          slices={teamSlices}
+        />
+      </div>
+    </section>
+  );
+}
