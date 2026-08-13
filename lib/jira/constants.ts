@@ -378,6 +378,31 @@ export const MODULE_TREE: readonly ModuleDefinition[] = [
       },
     ],
   },
+  {
+    id: "public-pages",
+    label: "Public Pages",
+    match: {
+      any: [
+        "public page",
+        "public pages",
+        "home page",
+        "homepage",
+        "landing page",
+        "landing",
+        "footer",
+        "header",
+        "navbar",
+        "navigation",
+        "about us",
+        "about page",
+        "contact us",
+        "contact page",
+        "seo",
+        "marketing page",
+      ],
+    },
+    subModules: [],
+  },
 ] as const;
 
 export const PROJECT_DEFAULTS = {
