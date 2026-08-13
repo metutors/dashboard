@@ -7,6 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DistributionCharts } from "@/components/dashboard/DistributionCharts";
 import { KpiCards } from "@/components/dashboard/KpiCards";
 import { LoadingState } from "@/components/dashboard/LoadingState";
+import { MatchingTickets } from "@/components/dashboard/MatchingTickets";
 import { StatusSection } from "@/components/dashboard/StatusSection";
 import { TeamSplitSection } from "@/components/dashboard/TeamSplit";
 import type { DashboardData, DashboardFilterOptions } from "@/types/jira";
@@ -176,6 +177,8 @@ export function DashboardClient() {
           <DistributionCharts data={data} />
 
           <TeamSplitSection teamSplit={data.teamSplit} />
+
+          <MatchingTickets issues={data.issues} total={data.total} />
 
           <StatusSection
             title="Bug Status"
