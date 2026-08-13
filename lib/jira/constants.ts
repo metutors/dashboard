@@ -100,321 +100,165 @@ export const PEOPLE_FILTERS: readonly PeopleFilterDefinition[] = [
   },
 ] as const;
 
-/**
- * Keyword rule used to place a ticket in a module. Keywords are matched as
- * word-start prefixes against the ticket summary plus its labels and
- * components, so "book" also matches "booking" and "booked".
- *
- * - `any`: at least one keyword must match.
- * - `all`: every group must have at least one matching keyword.
- * - `none`: no keyword may match.
- */
-export interface ModuleMatchRule {
-  any?: readonly string[];
-  all?: readonly (readonly string[])[];
-  none?: readonly string[];
-}
-
 export interface SubModuleDefinition {
   id: string;
   label: string;
-  /** Applied on top of the parent module rule. */
-  match: ModuleMatchRule;
+  /** Exact Jira label for this sub category. */
+  jiraLabel: string;
 }
 
 export interface ModuleDefinition {
   id: string;
   label: string;
-  match: ModuleMatchRule;
+  /** Exact Jira label for this main category. */
+  jiraLabel: string;
   subModules: readonly SubModuleDefinition[];
 }
 
-const STUDENTS = ["student", "learner"] as const;
-const TEACHERS = ["teacher", "tutor"] as const;
-const GROUP_COURSES = [
-  "group course",
-  "groupcourse",
-  "group class",
-  "group session",
-  "group program",
-  "live group",
-] as const;
-const ONE_TO_ONE = [
-  "1:1",
-  "1-1",
-  "1 on 1",
-  "one to one",
-  "one-to-one",
-  "personalized",
-  "personalised",
-  "private class",
-  "individual class",
-] as const;
-
-const BOOKING = [
-  "book",
-  "reschedul",
-  "cancel",
-  "slot",
-  "availab",
-  "schedul",
-  "session request",
-  "class request",
-  "subject request",
-  "request to teach",
-] as const;
-const CLASSROOM = [
-  "dashboard",
-  "classroom",
-  "class room",
-  "virtual class",
-  "zoom",
-  "whiteboard",
-  "meeting",
-  "lesson",
-  "join class",
-  "attendance",
-] as const;
-const PAYMENT = [
-  "payment",
-  "checkout",
-  "invoice",
-  "stripe",
-  "refund",
-  "wallet",
-  "price",
-  "pricing",
-  "coupon",
-  "gateway",
-  "purchase",
-  "dispute",
-  "finance",
-  "payout",
-  "billing",
-] as const;
-
-/**
- * 1:1 is the default offering: most tickets describe the learning journey
- * without naming it, so a booking, classroom, or payment ticket counts as 1:1
- * unless it explicitly mentions group courses.
- */
-const ONE_TO_ONE_OR_LEARNING_FLOW = [
-  ...ONE_TO_ONE,
-  ...BOOKING,
-  ...CLASSROOM,
-  ...PAYMENT,
-] as const;
-
-function learningSubModules(bookingLabel: string): readonly SubModuleDefinition[] {
+function learningSubModules(
+  bookingLabel: string,
+  bookingJiraLabel: string,
+): readonly SubModuleDefinition[] {
   return [
-    { id: "booking", label: bookingLabel, match: { any: BOOKING } },
-    { id: "classrooms", label: "Dashboard & Classrooms", match: { any: CLASSROOM } },
-    { id: "payments", label: "Payment Process & Gateway", match: { any: PAYMENT } },
+    {
+      id: "booking",
+      label: bookingLabel,
+      jiraLabel: bookingJiraLabel,
+    },
+    {
+      id: "classrooms",
+      label: "Dashboard & Classrooms",
+      jiraLabel: "Dashboard-Classrooms",
+    },
+    {
+      id: "payments",
+      label: "Payment Process & Gateway",
+      jiraLabel: "Payment-Process-Gateway",
+    },
   ];
 }
 
 /**
- * System Area / Module dropdown. A ticket belongs to a module when its text
- * matches the module rule, and to a sub module when it also matches the sub
- * rule. Tune the keyword lists above when new terminology appears in Jira.
+ * System Area / Module dropdown.
+ *
+ * Main category → ticket must have the main Jira label.
+ * Sub category → ticket must have BOTH the main label and the sub label.
+ *
+ * Label names must match Jira exactly (case-insensitive).
  */
 export const MODULE_TREE: readonly ModuleDefinition[] = [
   {
     id: "one-to-one-students",
     label: "1:1 Personalized Learning — Students",
-    match: {
-      all: [STUDENTS, ONE_TO_ONE_OR_LEARNING_FLOW],
-      none: GROUP_COURSES,
-    },
-    subModules: learningSubModules("Booking & Classes Management"),
+    jiraLabel: "1-1-Personalized-Learning-Students",
+    subModules: learningSubModules(
+      "Booking & Classes Management",
+      "Booking-Classes-Management",
+    ),
   },
   {
     id: "group-courses-students",
     label: "Live Group Courses — Students",
-    match: { all: [STUDENTS, GROUP_COURSES] },
-    subModules: learningSubModules("Booking & Classes Management"),
+    jiraLabel: "Live-Group-Courses-Students",
+    subModules: learningSubModules(
+      "Booking & Classes Management",
+      "Booking-Classes-Management",
+    ),
   },
   {
     id: "one-to-one-teachers",
     label: "1:1 Personalized Learning — Teachers",
-    match: {
-      all: [TEACHERS, ONE_TO_ONE_OR_LEARNING_FLOW],
-      none: GROUP_COURSES,
-    },
-    subModules: learningSubModules("Booking & Class Management"),
+    jiraLabel: "1-1-Personalized-Learning-Teachers",
+    subModules: learningSubModules(
+      "Booking & Class Management",
+      "Booking-Class-Management",
+    ),
   },
   {
     id: "group-courses-teachers",
     label: "Live Group Courses — Teachers",
-    match: { all: [TEACHERS, GROUP_COURSES] },
-    subModules: learningSubModules("Booking & Class Management"),
+    jiraLabel: "Live-Group-Courses-Teachers",
+    subModules: learningSubModules(
+      "Booking & Class Management",
+      "Booking-Class-Management",
+    ),
   },
   {
     id: "teachers",
     label: "Teachers",
-    match: { any: TEACHERS },
+    jiraLabel: "Teachers",
     subModules: [
       {
         id: "profile",
         label: "Teachers Profile & Inner Pages",
-        match: {
-          any: [
-            "profile",
-            "inner page",
-            "bio",
-            "resume",
-            "application",
-            "interview",
-            "document",
-            "certificate",
-            "onboard",
-          ],
-        },
+        jiraLabel: "Teachers-Profile-Inner-Pages",
       },
     ],
   },
   {
     id: "admin",
     label: "Admin",
-    match: { any: ["admin"] },
+    jiraLabel: "Admin",
     subModules: [
       {
         id: "platform-management",
         label: "Admin Platform Management",
-        match: { any: ["admin"] },
+        jiraLabel: "Admin-Platform-Management",
       },
     ],
   },
   {
     id: "metutorsmate",
     label: "MEtutorsMate",
-    match: { any: ["metutorsmate", "metutors mate", "metutors-mate"] },
+    jiraLabel: "MEtutorsMate",
     subModules: [
       {
         id: "development-model",
         label: "Development Model",
-        match: { any: ["development", "model", "roadmap", "release"] },
+        jiraLabel: "Development-Model",
       },
       {
         id: "subscription-usage",
         label: "Subscription & Usage",
-        match: {
-          any: ["subscription", "usage", "credit", "quota", "token", "plan"],
-        },
+        jiraLabel: "Subscription-Usage",
       },
     ],
   },
   {
     id: "authentication",
     label: "Authentication",
-    match: {
-      any: [
-        "sign in",
-        "signin",
-        "sign up",
-        "signup",
-        "login",
-        "log in",
-        "register",
-        "password",
-        "otp",
-        "verif",
-        "authentic",
-        "2fa",
-        "forgot",
-      ],
-    },
+    jiraLabel: "Authentication",
     subModules: [
       {
         id: "sign-in-sign-up",
         label: "Sign In / Sign Up",
-        match: {
-          any: [
-            "sign in",
-            "signin",
-            "sign up",
-            "signup",
-            "login",
-            "log in",
-            "register",
-          ],
-        },
+        jiraLabel: "Sign-In-Sign-Up",
       },
       {
         id: "management",
         label: "Management",
-        match: {
-          any: [
-            "password",
-            "otp",
-            "verif",
-            "forgot",
-            "reset",
-            "2fa",
-            "session expire",
-            "account lock",
-            "deactivate",
-            "delete account",
-          ],
-        },
+        jiraLabel: "Management",
       },
     ],
   },
   {
     id: "communication",
     label: "Communication",
-    match: {
-      any: [
-        "email",
-        "mail",
-        "notification",
-        "notif",
-        "whatsapp",
-        "sms",
-        "push",
-        "reminder",
-        "alert",
-      ],
-    },
+    jiraLabel: "Communication",
     subModules: [
-      { id: "emails", label: "Emails", match: { any: ["email", "mail"] } },
-      {
-        id: "whatsapp",
-        label: "WhatsApp",
-        match: { any: ["whatsapp", "whats app"] },
-      },
+      { id: "emails", label: "Emails", jiraLabel: "Emails" },
+      { id: "whatsapp", label: "WhatsApp", jiraLabel: "WhatsApp" },
       {
         id: "notifications",
         label: "Notifications",
-        match: {
-          any: ["notification", "notif", "push", "alert", "reminder"],
-        },
+        jiraLabel: "Notifications",
       },
     ],
   },
   {
     id: "public-pages",
     label: "Public Pages",
-    match: {
-      any: [
-        "public page",
-        "public pages",
-        "home page",
-        "homepage",
-        "landing page",
-        "landing",
-        "footer",
-        "header",
-        "navbar",
-        "navigation",
-        "about us",
-        "about page",
-        "contact us",
-        "contact page",
-        "seo",
-        "marketing page",
-      ],
-    },
+    jiraLabel: "Public-Pages",
     subModules: [],
   },
 ] as const;

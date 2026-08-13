@@ -83,15 +83,25 @@ Each option maps a display name to a Jira user, because the names used on the da
 
 #### Filter 2 — System Area / Module (`MODULE_TREE`)
 
-Nine main modules, each with sub modules. You can select a main module on its own (`Admin — all`) or a main module plus one sub module. Jira has no components and no module custom field for this project, so modules are matched by **keyword rules** against the ticket summary plus its labels and components:
+Main and sub categories map to **exact Jira labels** defined in `lib/jira/constants.ts`:
 
-- Keywords match at a word start, so `book` also matches `booking` and `booked`.
-- Labels are word-split first, so `EmailAndNotifications` matches `email` and `notification`.
-- A rule can require `any` keyword, `all` keyword groups, and exclude with `none`.
-- A ticket belongs to a sub module when it matches both the main rule and the sub rule.
-- 1:1 is treated as the default offering: a student/teacher ticket about booking, classrooms, or payment counts as 1:1 unless it explicitly mentions group courses.
+| Selection | Match rule |
+| --- | --- |
+| Main category only | Ticket has the main label (e.g. `Communication`) |
+| Main + sub category | Ticket has **both** labels (e.g. `Communication` **and** `Emails`) |
 
-A ticket can appear under more than one module (e.g. an admin email ticket is in both Admin and Communication), and tickets with no domain keywords (generic UI issues) belong to no module. Tune the keyword lists in `lib/jira/constants.ts` when new terminology appears in Jira.
+Examples that already exist in the current sprint:
+
+| Dropdown | Jira label(s) |
+| --- | --- |
+| Public Pages | `Public-Pages` |
+| Admin | `Admin` |
+| Communication | `Communication` |
+| Communication › Emails | `Communication` + `Emails` |
+| Teachers › Teachers Profile & Inner Pages | `Teachers` + `Teachers-Profile-Inner-Pages` |
+| 1:1 Personalized Learning — Students › Booking & Classes Management | `1-1-Personalized-Learning-Students` + `Booking-Classes-Management` |
+
+Label matching is case-insensitive. If a sub-category label has not been applied yet, that sub filter returns 0 tickets until the label exists in Jira. Every KPI, chart, team split, and Matching Tickets list is recalculated from the label-filtered set.
 
 #### Combining filters
 
