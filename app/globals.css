@@ -1,19 +1,41 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  /* Project primary colour */
+  --brand: #3bb3c1;
+  --brand-dark: #2b8d99;
+  --brand-tint: #eef9fb;
+  --background: #f4fbfc;
   --foreground: #0f172a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-tint: var(--brand-tint);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
+  /* Soft brand wash: teal glow at the top fading into a near-white page so
+     white cards keep their contrast. */
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      1100px circle at 12% -10%,
+      color-mix(in srgb, var(--brand) 26%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      900px circle at 92% 0%,
+      color-mix(in srgb, var(--brand) 16%, transparent) 0%,
+      transparent 55%
+    ),
+    linear-gradient(180deg, var(--brand-tint) 0%, #ffffff 45%, var(--brand-tint) 100%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }

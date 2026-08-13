@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AverageCloseTimeCard } from "@/components/dashboard/AverageCloseTime";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -16,14 +16,35 @@ type DashboardResponse = DashboardData | { success: false; error: string };
 
 const EMPTY_FILTER_OPTIONS: DashboardFilterOptions = { people: [], modules: [] };
 
+/**
+ * Cached filter requests return in well under 100ms, so the busy visuals are
+ * delayed to avoid a flash of skeleton or dimmed content on every dropdown click.
+ */
+const BUSY_INDICATOR_DELAY_MS = 220;
+
+type PendingKind = "filter" | "refresh";
+
 export function DashboardClient() {
   const [people, setPeople] = useState("");
   const [module, setModule] = useState("");
   const [subModule, setSubModule] = useState("");
   const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [pending, setPending] = useState<PendingKind | null>("filter");
+  const [showBusy, setShowBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  const requestIdRef = useRef(0);
+  const busyTimerRef = useRef<number | null>(null);
+
+  const clearBusyTimer = useCallback(() => {
+    if (busyTimerRef.current !== null) {
+      window.clearTimeout(busyTimerRef.current);
+      busyTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearBusyTimer, [clearBusyTimer]);
 
   const fetchDashboard = useCallback(
     async (options?: {
@@ -37,11 +58,19 @@ export function DashboardClient() {
       const nextSubModule = options?.subModule ?? subModule;
       const refresh = Boolean(options?.refresh);
 
-      setLoading(true);
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
+
+      setPending(refresh ? "refresh" : "filter");
       setError(null);
       if (refresh) {
         setStatusMessage("Loading...");
       }
+
+      clearBusyTimer();
+      busyTimerRef.current = window.setTimeout(() => {
+        setShowBusy(true);
+      }, BUSY_INDICATOR_DELAY_MS);
 
       try {
         const params = new URLSearchParams();
@@ -55,6 +84,9 @@ export function DashboardClient() {
           { cache: "no-store" },
         );
         const payload = (await response.json()) as DashboardResponse;
+
+        // A newer request started while this one was in flight; drop the result.
+        if (requestId !== requestIdRef.current) return;
 
         if (!response.ok || !("success" in payload) || payload.success !== true) {
           const message =
@@ -76,15 +108,20 @@ export function DashboardClient() {
           }, 2500);
         }
       } catch {
+        if (requestId !== requestIdRef.current) return;
         setError(
           "Unable to load Jira data. Please check your Jira configuration or try Pull Live again.",
         );
         setStatusMessage(null);
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) {
+          clearBusyTimer();
+          setShowBusy(false);
+          setPending(null);
+        }
       }
     },
-    [module, people, subModule],
+    [clearBusyTimer, module, people, subModule],
   );
 
   useEffect(() => {
@@ -116,12 +153,18 @@ export function DashboardClient() {
     void fetchDashboard({ refresh: true });
   };
 
+  const initialLoading = !data && pending !== null;
+  // Pull Live refetches from Jira, so it keeps the full skeleton. Filter changes
+  // update in place and only fade if the response is unusually slow.
+  const showSkeleton = initialLoading || (pending === "refresh" && showBusy);
+  const showFading = !showSkeleton && pending !== null && showBusy;
+
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <DashboardHeader
         projectName={data?.projectName ?? "ME Tutors"}
         lastUpdated={data?.lastUpdatedFormatted ?? null}
-        loading={loading}
+        loading={pending !== null}
         onPullLive={handlePullLive}
       />
 
@@ -130,12 +173,12 @@ export function DashboardClient() {
         module={module}
         subModule={subModule}
         options={data?.filters.options ?? EMPTY_FILTER_OPTIONS}
-        matchCount={data?.total ?? null}
-        behavior={data?.filters.behavior ?? null}
+        matchCount={showSkeleton ? null : (data?.total ?? null)}
+        behavior={showSkeleton ? null : (data?.filters.behavior ?? null)}
         onPeopleChange={handlePeopleChange}
         onModuleChange={handleModuleChange}
         onClear={handleClearFilters}
-        disabled={loading && !data}
+        disabled={initialLoading || pending === "refresh"}
       />
 
       {statusMessage ? (
@@ -151,7 +194,7 @@ export function DashboardClient() {
         </div>
       ) : null}
 
-      {data && data.total === 0 && data.filters.active ? (
+      {!showSkeleton && data && data.total === 0 && data.filters.active ? (
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
           <p className="font-semibold text-slate-700">
             No tickets match the selected filters.
@@ -163,10 +206,15 @@ export function DashboardClient() {
         </div>
       ) : null}
 
-      {loading && !data ? (
+      {showSkeleton ? (
         <LoadingState />
       ) : data ? (
-        <>
+        <div
+          aria-busy={showFading}
+          className={`flex flex-col gap-5 transition-opacity duration-300 ease-out ${
+            showFading ? "opacity-50" : "opacity-100"
+          }`}
+        >
           <KpiCards
             total={data.total}
             bugs={data.bugs}
@@ -209,7 +257,7 @@ export function DashboardClient() {
             countLabel="resolved tasks"
             issues={data.resolvedTasks}
           />
-        </>
+        </div>
       ) : null}
     </div>
   );

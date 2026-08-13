@@ -24,17 +24,6 @@ export function LoadingState() {
         </div>
       </div>
 
-      {[0, 1].map((section) => (
-        <div key={section} className="space-y-3">
-          <SkeletonBlock className="h-3 w-28" />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[0, 1, 2, 3, 4].map((card) => (
-              <SkeletonBlock key={card} className="h-[86px]" />
-            ))}
-          </div>
-        </div>
-      ))}
-
       <div className="space-y-3">
         <SkeletonBlock className="h-3 w-24" />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -44,8 +33,22 @@ export function LoadingState() {
         </div>
       </div>
 
-      <SkeletonBlock className="h-64 w-full" />
-      <SkeletonBlock className="h-64 w-full" />
+      <div className="space-y-3">
+        <SkeletonBlock className="h-3 w-32" />
+        <SkeletonBlock className="h-[280px] w-full" />
+      </div>
+
+      {[0, 1].map((section) => (
+        <div key={section} className="space-y-3">
+          <SkeletonBlock className="h-3 w-28" />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {[0, 1, 2, 3, 4].map((card) => (
+              <SkeletonBlock key={card} className="h-[86px]" />
+            ))}
+          </div>
+          <SkeletonBlock className="h-64 w-full" />
+        </div>
+      ))}
     </div>
   );
 }

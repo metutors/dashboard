@@ -14,7 +14,7 @@ const CHART_COLORS = {
   todo: "#94a3b8",
   backend: "#7c3aed",
   frontend: "#059669",
-  other: "#cbd5e1",
+  qa: "#d97706",
 } as const;
 
 function statusSlices(counts: DashboardData["bugStatus"]): PieSlice[] {
@@ -56,7 +56,11 @@ export function DistributionCharts({ data }: { data: DashboardData }) {
       value: data.teamSplit.frontend,
       color: CHART_COLORS.frontend,
     },
-    { name: "Other", value: data.teamSplit.other, color: CHART_COLORS.other },
+    {
+      name: shortTeamLabel(data.teamSplit.qaLabel),
+      value: data.teamSplit.qa,
+      color: CHART_COLORS.qa,
+    },
   ];
 
   return (

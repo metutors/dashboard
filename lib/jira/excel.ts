@@ -40,7 +40,7 @@ export async function buildDashboardWorkbook(
     { metric: "Task Status — To Do", value: data.taskStatus.todo },
     { metric: data.teamSplit.backendLabel, value: data.teamSplit.backend },
     { metric: data.teamSplit.frontendLabel, value: data.teamSplit.frontend },
-    { metric: "OTHER", value: data.teamSplit.other },
+    { metric: data.teamSplit.qaLabel, value: data.teamSplit.qa },
     {
       metric: "Avg Time to Close — Bug (days)",
       value: data.averageCloseTime.bugs ?? "N/A",

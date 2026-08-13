@@ -1,34 +1,34 @@
 "use client";
 
-import { Monitor, Server, Users } from "lucide-react";
+import { ClipboardCheck, Monitor, Server } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
 import type { TeamSplit } from "@/types/jira";
 
-type TeamTone = "violet" | "green" | "slate";
+type TeamTone = "violet" | "green" | "amber";
 
 const labelClasses: Record<TeamTone, string> = {
   violet: "text-violet-700",
   green: "text-emerald-700",
-  slate: "text-slate-500",
+  amber: "text-amber-700",
 };
 
 const valueClasses: Record<TeamTone, string> = {
   violet: "text-violet-600",
   green: "text-emerald-600",
-  slate: "text-slate-500",
+  amber: "text-amber-600",
 };
 
 const iconClasses: Record<TeamTone, string> = {
   violet: "text-violet-200",
   green: "text-emerald-200",
-  slate: "text-slate-200",
+  amber: "text-amber-200",
 };
 
 const borderClasses: Record<TeamTone, string> = {
   violet: "border-violet-200",
   green: "border-emerald-200",
-  slate: "border-slate-200",
+  amber: "border-amber-200",
 };
 
 function TeamCard({
@@ -83,10 +83,10 @@ export function TeamSplitSection({ teamSplit }: { teamSplit: TeamSplit }) {
           icon={Monitor}
         />
         <TeamCard
-          label="Other"
-          value={teamSplit.other}
-          tone="slate"
-          icon={Users}
+          label={teamSplit.qaLabel}
+          value={teamSplit.qa}
+          tone="amber"
+          icon={ClipboardCheck}
         />
       </div>
     </section>

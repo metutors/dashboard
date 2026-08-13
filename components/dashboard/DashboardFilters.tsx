@@ -159,8 +159,12 @@ export function DashboardFilters({
             ? "Loading tickets..."
             : `${matchCount} matching ${matchCount === 1 ? "ticket" : "tickets"}`}
         </span>
-        <span aria-hidden>•</span>
-        <span>{behavior ?? "No filters — showing all project tickets"}</span>
+        {behavior ? (
+          <>
+            <span aria-hidden>•</span>
+            <span>{behavior}</span>
+          </>
+        ) : null}
         <span aria-hidden>•</span>
         <span>Both filters work on their own or together.</span>
       </div>

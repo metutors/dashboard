@@ -39,8 +39,10 @@ export interface JiraConfig {
   };
   backendUsers: string[];
   frontendUsers: string[];
+  qaUsers: string[];
   backendLabel: string;
   frontendLabel: string;
+  qaLabel: string;
 }
 
 let cachedConfig: JiraConfig | null = null;
@@ -70,8 +72,10 @@ export function getJiraConfig(): JiraConfig {
     },
     backendUsers: [...TEAMS.backend.users],
     frontendUsers: [...TEAMS.frontend.users],
+    qaUsers: [...TEAMS.qa.users],
     backendLabel: TEAMS.backend.label,
     frontendLabel: TEAMS.frontend.label,
+    qaLabel: TEAMS.qa.label,
   };
 
   return cachedConfig;

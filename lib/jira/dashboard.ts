@@ -1,5 +1,6 @@
 import { cacheDeleteByPrefix, cacheGet, cacheSet } from "./cache";
 import { getBrowseUrl, getJiraConfig } from "./config";
+import { DISPLAY_NAME_ALIASES } from "./constants";
 import {
   describeFilters,
   getFilterOptions,
@@ -79,6 +80,12 @@ function getAssigneeName(issue: JiraIssue): string | null {
   return issue.fields.assignee?.displayName?.trim() || null;
 }
 
+/** Maps Jira display names (e.g. Mubashar) to dashboard display names (Usman). */
+function displayName(value: string | null): string | null {
+  if (!value) return null;
+  return DISPLAY_NAME_ALIASES[normalizeName(value)] ?? value;
+}
+
 function emptyStatusCounts(): StatusCounts {
   return {
     done: 0,
@@ -137,32 +144,32 @@ function buildTeamSplit(issues: JiraIssue[]): TeamSplit {
   const config = getJiraConfig();
   const backend = parseCsvList(config.backendUsers);
   const frontend = parseCsvList(config.frontendUsers);
+  const qa = parseCsvList(config.qaUsers);
 
   let backendCount = 0;
   let frontendCount = 0;
-  let otherCount = 0;
+  let qaCount = 0;
 
   for (const issue of issues) {
     const assignee = normalizeName(getAssigneeName(issue));
-    if (!assignee) {
-      otherCount += 1;
-      continue;
-    }
+    if (!assignee) continue;
+
     if (backend.has(assignee)) {
       backendCount += 1;
     } else if (frontend.has(assignee)) {
       frontendCount += 1;
-    } else {
-      otherCount += 1;
+    } else if (qa.has(assignee)) {
+      qaCount += 1;
     }
   }
 
   return {
     backend: backendCount,
     frontend: frontendCount,
-    other: otherCount,
+    qa: qaCount,
     backendLabel: config.backendLabel,
     frontendLabel: config.frontendLabel,
+    qaLabel: config.qaLabel,
   };
 }
 
@@ -209,7 +216,7 @@ function buildIssueRows(issues: JiraIssue[]): DashboardIssueRow[] {
       summary: issue.fields.summary,
       type: getIssueTypeName(issue),
       status: getStatusName(issue),
-      assignee: getAssigneeName(issue),
+      assignee: displayName(getAssigneeName(issue)),
       created: formatDateTime(created),
       resolved: formatDateTime(resolved),
       daysToClose: days == null ? null : Number(days.toFixed(1)),

@@ -76,9 +76,10 @@ export interface StatusCounts {
 export interface TeamSplit {
   backend: number;
   frontend: number;
-  other: number;
+  qa: number;
   backendLabel: string;
   frontendLabel: string;
+  qaLabel: string;
 }
 
 export interface AverageCloseTime {

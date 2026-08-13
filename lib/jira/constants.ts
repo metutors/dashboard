@@ -21,13 +21,27 @@ export const STATUS_MAPPING = {
 export const TEAMS = {
   backend: {
     label: "BACKEND — AHTSHAM UL HASSAN",
-    users: ["Ahtsham Ul Hassan"],
+    users: ["Ahtsham Ul Hassan", "Ahtsham ul Hassan"],
   },
   frontend: {
     label: "FRONTEND — AHMED HASSAN",
     users: ["Ahmed Hassan"],
   },
+  qa: {
+    label: "QA — USMAN MALIK",
+    // Jira still stores Usman as Mubashar / Mubashir Hussain.
+    users: ["Mubashar Hussain", "Mubashir Hussain"],
+  },
 } as const;
+
+/**
+ * Display-only aliases. Matching still uses the Jira display name;
+ * the UI and exports show the alias instead.
+ */
+export const DISPLAY_NAME_ALIASES: Record<string, string> = {
+  "mubashar hussain": "Usman Malik",
+  "mubashir hussain": "Usman Malik",
+};
 
 export type PeopleFilterMode = "reported" | "working";
 
@@ -46,7 +60,7 @@ export const PEOPLE_FILTERS: readonly PeopleFilterDefinition[] = [
     id: "reported-usman",
     label: "Reported by Usman",
     mode: "reported",
-    jiraNames: ["Mubashar Hussain"],
+    jiraNames: ["Mubashar Hussain", "Mubashir Hussain"],
   },
   {
     id: "working-viber",
@@ -58,7 +72,7 @@ export const PEOPLE_FILTERS: readonly PeopleFilterDefinition[] = [
     id: "working-usman",
     label: "Usman Working",
     mode: "working",
-    jiraNames: ["Mubashar Hussain"],
+    jiraNames: ["Mubashar Hussain", "Mubashir Hussain"],
   },
   {
     id: "working-ahtsham",
