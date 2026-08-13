@@ -9,13 +9,16 @@ import { KpiCards } from "@/components/dashboard/KpiCards";
 import { LoadingState } from "@/components/dashboard/LoadingState";
 import { StatusSection } from "@/components/dashboard/StatusSection";
 import { TeamSplitSection } from "@/components/dashboard/TeamSplit";
-import type { DashboardData } from "@/types/jira";
+import type { DashboardData, DashboardFilterOptions } from "@/types/jira";
 
 type DashboardResponse = DashboardData | { success: false; error: string };
+
+const EMPTY_FILTER_OPTIONS: DashboardFilterOptions = { people: [], modules: [] };
 
 export function DashboardClient() {
   const [people, setPeople] = useState("");
   const [module, setModule] = useState("");
+  const [subModule, setSubModule] = useState("");
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,10 +28,12 @@ export function DashboardClient() {
     async (options?: {
       people?: string;
       module?: string;
+      subModule?: string;
       refresh?: boolean;
     }) => {
       const nextPeople = options?.people ?? people;
       const nextModule = options?.module ?? module;
+      const nextSubModule = options?.subModule ?? subModule;
       const refresh = Boolean(options?.refresh);
 
       setLoading(true);
@@ -41,6 +46,7 @@ export function DashboardClient() {
         const params = new URLSearchParams();
         if (nextPeople) params.set("people", nextPeople);
         if (nextModule) params.set("module", nextModule);
+        if (nextModule && nextSubModule) params.set("submodule", nextSubModule);
         if (refresh) params.set("refresh", "1");
 
         const response = await fetch(
@@ -77,7 +83,7 @@ export function DashboardClient() {
         setLoading(false);
       }
     },
-    [module, people],
+    [module, people, subModule],
   );
 
   useEffect(() => {
@@ -92,15 +98,17 @@ export function DashboardClient() {
     void fetchDashboard({ people: value });
   };
 
-  const handleModuleChange = (value: string) => {
-    setModule(value);
-    void fetchDashboard({ module: value });
+  const handleModuleChange = (moduleId: string, subModuleId: string) => {
+    setModule(moduleId);
+    setSubModule(subModuleId);
+    void fetchDashboard({ module: moduleId, subModule: subModuleId });
   };
 
   const handleClearFilters = () => {
     setPeople("");
     setModule("");
-    void fetchDashboard({ people: "", module: "" });
+    setSubModule("");
+    void fetchDashboard({ people: "", module: "", subModule: "" });
   };
 
   const handlePullLive = () => {
@@ -119,8 +127,10 @@ export function DashboardClient() {
       <DashboardFilters
         people={people}
         module={module}
-        peopleOptions={data?.filters.options.people ?? []}
-        moduleOptions={data?.filters.options.modules ?? []}
+        subModule={subModule}
+        options={data?.filters.options ?? EMPTY_FILTER_OPTIONS}
+        matchCount={data?.total ?? null}
+        behavior={data?.filters.behavior ?? null}
         onPeopleChange={handlePeopleChange}
         onModuleChange={handleModuleChange}
         onClear={handleClearFilters}
@@ -137,6 +147,18 @@ export function DashboardClient() {
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
           <p className="font-semibold">Unable to load Jira data.</p>
           <p className="mt-1">{error}</p>
+        </div>
+      ) : null}
+
+      {data && data.total === 0 && data.filters.active ? (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          <p className="font-semibold text-slate-700">
+            No tickets match the selected filters.
+          </p>
+          <p className="mt-1">
+            {data.filters.behavior}. Try a different selection, or clear the
+            filters to see the full project.
+          </p>
         </div>
       ) : null}
 
@@ -184,19 +206,6 @@ export function DashboardClient() {
             countLabel="resolved tasks"
             issues={data.resolvedTasks}
           />
-
-          {data.configNotes.length ? (
-            <details className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
-              <summary className="cursor-pointer font-semibold">
-                Configuration notes ({data.configNotes.length})
-              </summary>
-              <ul className="mt-2 list-disc space-y-1 pl-5">
-                {data.configNotes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-            </details>
-          ) : null}
         </>
       ) : null}
     </div>

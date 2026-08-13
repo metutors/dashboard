@@ -111,14 +111,45 @@ export interface DashboardIssueRow {
   browseUrl: string;
 }
 
+/** Filter selections are stable ids from lib/jira/constants.ts, not free text. */
 export interface DashboardFilters {
   people: string | null;
   module: string | null;
+  subModule: string | null;
+}
+
+export interface PeopleFilterOption {
+  id: string;
+  label: string;
+  mode: "reported" | "working";
+}
+
+export interface SubModuleFilterOption {
+  id: string;
+  label: string;
+}
+
+export interface ModuleFilterOption {
+  id: string;
+  label: string;
+  subModules: SubModuleFilterOption[];
 }
 
 export interface DashboardFilterOptions {
-  people: string[];
-  modules: string[];
+  people: PeopleFilterOption[];
+  modules: ModuleFilterOption[];
+}
+
+export interface AppliedDashboardFilters {
+  people: string | null;
+  peopleLabel: string | null;
+  module: string | null;
+  moduleLabel: string | null;
+  subModule: string | null;
+  subModuleLabel: string | null;
+  active: boolean;
+  options: DashboardFilterOptions;
+  behavior: string;
 }
 
 export interface DashboardData {
@@ -127,13 +158,7 @@ export interface DashboardData {
   projectKey: string;
   lastUpdated: string;
   lastUpdatedFormatted: string;
-  filters: {
-    people: string | null;
-    module: string | null;
-    options: DashboardFilterOptions;
-    behavior: string;
-  };
-  configNotes: string[];
+  filters: AppliedDashboardFilters;
   total: number;
   bugs: number;
   tasks: number;

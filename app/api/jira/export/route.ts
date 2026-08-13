@@ -5,11 +5,12 @@ import { buildDashboardWorkbook } from "@/lib/jira/excel";
 
 export const dynamic = "force-dynamic";
 
+/** Filter values are ids defined in lib/jira/constants.ts, never free text. */
 function sanitizeFilter(value: string | null): string | null {
   if (!value) return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  if (trimmed.length > 120 || /[\\"\n\r]/.test(trimmed)) {
+  if (trimmed.length > 60 || !/^[a-z0-9-]+$/.test(trimmed)) {
     throw new Error("Invalid filter value.");
   }
   return trimmed;
@@ -20,8 +21,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = request.nextUrl;
     const people = sanitizeFilter(searchParams.get("people"));
     const moduleFilter = sanitizeFilter(searchParams.get("module"));
+    const subModule = sanitizeFilter(searchParams.get("submodule"));
 
-    const data = await getDashboardData({ people, module: moduleFilter });
+    const data = await getDashboardData({
+      people,
+      module: moduleFilter,
+      subModule,
+    });
     const buffer = await buildDashboardWorkbook(data);
     const body = new Uint8Array(buffer);
 

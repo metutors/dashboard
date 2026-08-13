@@ -1,9 +1,5 @@
 import { jiraFetch } from "./client";
-import {
-  DEFAULT_ISSUE_FIELDS,
-  getConfiguredCustomFields,
-  getJiraConfig,
-} from "./config";
+import { DEFAULT_ISSUE_FIELDS, getJiraConfig } from "./config";
 import type { JiraIssue, JiraSearchResponse } from "@/types/jira";
 
 const PAGE_SIZE = 100;
@@ -13,11 +9,7 @@ type SearchMode = "classic" | "enhanced";
 let preferredSearchMode: SearchMode | null = null;
 
 function buildFieldsParam(extraFields: string[] = []): string[] {
-  const fields = new Set<string>([
-    ...DEFAULT_ISSUE_FIELDS,
-    ...getConfiguredCustomFields(),
-    ...extraFields,
-  ]);
+  const fields = new Set<string>([...DEFAULT_ISSUE_FIELDS, ...extraFields]);
   return Array.from(fields);
 }
 

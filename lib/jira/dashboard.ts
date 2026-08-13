@@ -1,12 +1,17 @@
 import { cacheDeleteByPrefix, cacheGet, cacheSet } from "./cache";
 import { getBrowseUrl, getJiraConfig } from "./config";
+import {
+  describeFilters,
+  getFilterOptions,
+  matchesFilters,
+  resolveFilters,
+} from "./filters";
 import { buildProjectJql, getAllIssues } from "./issues";
 import type {
   AverageCloseTime,
   DashboardData,
   DashboardFilters,
   DashboardIssueRow,
-  DashboardFilterOptions,
   JiraIssue,
   ResolvedIssue,
   StatusCounts,
@@ -72,74 +77,6 @@ function getStatusName(issue: JiraIssue): string {
 
 function getAssigneeName(issue: JiraIssue): string | null {
   return issue.fields.assignee?.displayName?.trim() || null;
-}
-
-function getCustomFieldValues(issue: JiraIssue, fieldId: string): string[] {
-  const raw = issue.fields[fieldId];
-  if (raw == null) return [];
-
-  if (typeof raw === "string" || typeof raw === "number") {
-    return [String(raw)];
-  }
-
-  if (Array.isArray(raw)) {
-    return raw
-      .map((item) => {
-        if (typeof item === "string" || typeof item === "number") {
-          return String(item);
-        }
-        if (item && typeof item === "object") {
-          const record = item as Record<string, unknown>;
-          if (typeof record.value === "string") return record.value;
-          if (typeof record.name === "string") return record.name;
-          if (typeof record.displayName === "string") return record.displayName;
-        }
-        return null;
-      })
-      .filter((value): value is string => Boolean(value));
-  }
-
-  if (typeof raw === "object") {
-    const record = raw as Record<string, unknown>;
-    if (typeof record.value === "string") return [record.value];
-    if (typeof record.name === "string") return [record.name];
-    if (typeof record.displayName === "string") return [record.displayName];
-  }
-
-  return [];
-}
-
-function getPeopleValues(issue: JiraIssue): string[] {
-  const config = getJiraConfig();
-  if (config.ticketSourceField) {
-    return getCustomFieldValues(issue, config.ticketSourceField);
-  }
-  const assignee = getAssigneeName(issue);
-  return assignee ? [assignee] : [];
-}
-
-function getModuleValues(issue: JiraIssue): string[] {
-  const config = getJiraConfig();
-  if (config.moduleField) {
-    return getCustomFieldValues(issue, config.moduleField);
-  }
-
-  const components = (issue.fields.components ?? []).map((c) => c.name);
-  const labels = issue.fields.labels ?? [];
-  const combined = [...components, ...labels];
-
-  if (config.moduleLabels.length > 0) {
-    const allowed = parseCsvList(config.moduleLabels);
-    return combined.filter((value) => allowed.has(normalizeName(value)));
-  }
-
-  return combined;
-}
-
-function matchesFilter(values: string[], selected: string | null): boolean {
-  if (!selected) return true;
-  const target = normalizeName(selected);
-  return values.some((value) => normalizeName(value) === target);
 }
 
 function emptyStatusCounts(): StatusCounts {
@@ -282,79 +219,6 @@ function buildIssueRows(issues: JiraIssue[]): DashboardIssueRow[] {
   });
 }
 
-function collectFilterOptions(issues: JiraIssue[]): DashboardFilterOptions {
-  const people = new Set<string>();
-  const modules = new Set<string>();
-
-  for (const issue of issues) {
-    for (const value of getPeopleValues(issue)) {
-      if (value.trim()) people.add(value.trim());
-    }
-    for (const value of getModuleValues(issue)) {
-      if (value.trim()) modules.add(value.trim());
-    }
-  }
-
-  const config = getJiraConfig();
-  if (!config.moduleField && config.moduleLabels.length > 0) {
-    for (const label of config.moduleLabels) {
-      modules.add(label);
-    }
-  }
-
-  return {
-    people: Array.from(people).sort((a, b) => a.localeCompare(b)),
-    modules: Array.from(modules).sort((a, b) => a.localeCompare(b)),
-  };
-}
-
-function describeBehavior(filters: DashboardFilters): string {
-  if (!filters.people && !filters.module) {
-    return "No Filters — showing all project tickets";
-  }
-  if (filters.people && filters.module) {
-    return `People = ${filters.people} + Module = ${filters.module}`;
-  }
-  if (filters.people) {
-    return `People / Ticket Source = ${filters.people}`;
-  }
-  return `System Area / Module = ${filters.module}`;
-}
-
-function buildConfigNotes(): string[] {
-  const config = getJiraConfig();
-  const notes: string[] = [];
-
-  if (!config.moduleField) {
-    notes.push(
-      "System Area / Module uses Components and Labels (see MODULE_LABELS in lib/jira/constants.ts). Set JIRA_MODULE_FIELD if you use a custom field.",
-    );
-  }
-
-  if (!config.ticketSourceField) {
-    notes.push(
-      "People / Ticket Source falls back to Assignee. Set JIRA_TICKET_SOURCE_FIELD if you use a custom field.",
-    );
-  }
-
-  return notes;
-}
-
-function validateFilterValue(
-  value: string | null,
-  options: string[],
-  label: string,
-): string | null {
-  if (!value) return null;
-  const match = options.find(
-    (option) => normalizeName(option) === normalizeName(value),
-  );
-  if (!match) {
-    throw new Error(`Invalid ${label} filter value.`);
-  }
-  return match;
-}
-
 async function loadAllProjectIssues(forceRefresh: boolean): Promise<JiraIssue[]> {
   const config = getJiraConfig();
   const cacheKey = `${ISSUES_CACHE_PREFIX}${config.projectKey}`;
@@ -381,26 +245,12 @@ export async function getDashboardData(
   options: { forceRefresh?: boolean } = {},
 ): Promise<DashboardData> {
   const config = getJiraConfig();
+  const resolved = resolveFilters(filters);
   const allIssues = await loadAllProjectIssues(Boolean(options.forceRefresh));
-  const filterOptions = collectFilterOptions(allIssues);
 
-  const people = validateFilterValue(
-    filters.people,
-    filterOptions.people,
-    "people",
-  );
-  const moduleFilter = validateFilterValue(
-    filters.module,
-    filterOptions.modules,
-    "module",
-  );
-
-  const filtered = allIssues.filter((issue) => {
-    return (
-      matchesFilter(getPeopleValues(issue), people) &&
-      matchesFilter(getModuleValues(issue), moduleFilter)
-    );
-  });
+  // Filtering runs over the cached project dataset, so changing a filter never
+  // triggers another Jira request.
+  const filtered = allIssues.filter((issue) => matchesFilters(issue, resolved));
 
   const bugs = filtered.filter(isBug);
   const tasks = filtered.filter(isTask);
@@ -423,12 +273,16 @@ export async function getDashboardData(
     lastUpdated: now.toISOString(),
     lastUpdatedFormatted: formatLastUpdated(now),
     filters: {
-      people,
-      module: moduleFilter,
-      options: filterOptions,
-      behavior: describeBehavior({ people, module: moduleFilter }),
+      people: resolved.people?.id ?? null,
+      peopleLabel: resolved.people?.label ?? null,
+      module: resolved.module?.id ?? null,
+      moduleLabel: resolved.module?.label ?? null,
+      subModule: resolved.subModule?.id ?? null,
+      subModuleLabel: resolved.subModule?.label ?? null,
+      active: Boolean(resolved.people || resolved.module),
+      options: getFilterOptions(),
+      behavior: describeFilters(resolved),
     },
-    configNotes: buildConfigNotes(),
     total: filtered.length,
     bugs: bugs.length,
     tasks: tasks.length,

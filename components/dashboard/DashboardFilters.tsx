@@ -1,67 +1,36 @@
 "use client";
 
-import { ChevronDown, Layers, RotateCcw, User } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Layers, RotateCcw, User } from "lucide-react";
+import {
+  FilterDropdown,
+  type FilterDropdownItem,
+} from "@/components/dashboard/FilterDropdown";
+import type { DashboardFilterOptions } from "@/types/jira";
 
-interface FilterSelectProps {
-  label: string;
-  placeholder: string;
-  icon: LucideIcon;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-  disabled?: boolean;
+const MODULE_VALUE_SEPARATOR = "::";
+
+function encodeModuleValue(moduleId: string, subModuleId: string): string {
+  if (!moduleId) return "";
+  return subModuleId
+    ? `${moduleId}${MODULE_VALUE_SEPARATOR}${subModuleId}`
+    : moduleId;
 }
 
-function FilterSelect({
-  label,
-  placeholder,
-  icon: Icon,
-  value,
-  options,
-  onChange,
-  disabled,
-}: FilterSelectProps) {
-  return (
-    <div className="min-w-0 flex-1">
-      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-violet-600">
-        {label}
-      </p>
-      <div className="relative">
-        <Icon
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-          aria-hidden
-        />
-        <select
-          aria-label={label}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          disabled={disabled}
-          className="w-full appearance-none rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <option value="">{placeholder}</option>
-          {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-          aria-hidden
-        />
-      </div>
-    </div>
-  );
+function decodeModuleValue(value: string): [string, string] {
+  if (!value) return ["", ""];
+  const [moduleId, subModuleId = ""] = value.split(MODULE_VALUE_SEPARATOR);
+  return [moduleId, subModuleId];
 }
 
 interface DashboardFiltersProps {
   people: string;
   module: string;
-  peopleOptions: string[];
-  moduleOptions: string[];
-  onPeopleChange: (value: string) => void;
-  onModuleChange: (value: string) => void;
+  subModule: string;
+  options: DashboardFilterOptions;
+  matchCount: number | null;
+  behavior: string | null;
+  onPeopleChange: (peopleId: string) => void;
+  onModuleChange: (moduleId: string, subModuleId: string) => void;
   onClear: () => void;
   disabled?: boolean;
 }
@@ -69,34 +38,110 @@ interface DashboardFiltersProps {
 export function DashboardFilters({
   people,
   module,
-  peopleOptions,
-  moduleOptions,
+  subModule,
+  options,
+  matchCount,
+  behavior,
   onPeopleChange,
   onModuleChange,
   onClear,
   disabled,
 }: DashboardFiltersProps) {
+  const reportedBy = options.people.filter((item) => item.mode === "reported");
+  const working = options.people.filter((item) => item.mode === "working");
+
+  const peopleItems: FilterDropdownItem[] = [
+    { kind: "option", value: "", label: "All People / Ticket Sources" },
+  ];
+  if (reportedBy.length) {
+    peopleItems.push({
+      kind: "heading",
+      id: "reported",
+      label: "Reported By — all statuses",
+    });
+    for (const option of reportedBy) {
+      peopleItems.push({
+        kind: "option",
+        value: option.id,
+        label: option.label,
+      });
+    }
+  }
+  if (working.length) {
+    peopleItems.push({
+      kind: "heading",
+      id: "working",
+      label: "Working — In Progress only",
+    });
+    for (const option of working) {
+      peopleItems.push({
+        kind: "option",
+        value: option.id,
+        label: option.label,
+      });
+    }
+  }
+
+  const moduleItems: FilterDropdownItem[] = [
+    { kind: "option", value: "", label: "All System Areas / Modules" },
+  ];
+  for (const option of options.modules) {
+    moduleItems.push({
+      kind: "option",
+      value: option.id,
+      label: option.label,
+      bold: true,
+    });
+    for (const sub of option.subModules) {
+      moduleItems.push({
+        kind: "option",
+        value: encodeModuleValue(option.id, sub.id),
+        label: sub.label,
+        indent: true,
+      });
+    }
+  }
+
+  const selectedPeopleLabel =
+    options.people.find((option) => option.id === people)?.label ?? null;
+
+  const selectedModule = options.modules.find(
+    (option) => option.id === module,
+  );
+  const selectedSubModule = selectedModule?.subModules.find(
+    (sub) => sub.id === subModule,
+  );
+  const selectedModuleLabel = selectedModule
+    ? selectedSubModule
+      ? `${selectedModule.label} › ${selectedSubModule.label}`
+      : selectedModule.label
+    : null;
+
   return (
     <section className="rounded-xl border border-dashed border-violet-300 bg-white p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-        <FilterSelect
+        <FilterDropdown
           label="1. People / Ticket Source"
-          placeholder="Select People / Ticket Source"
           icon={User}
+          placeholder="All People / Ticket Sources"
           value={people}
-          options={peopleOptions}
-          onChange={onPeopleChange}
+          selectedLabel={selectedPeopleLabel}
+          items={peopleItems}
+          onSelect={onPeopleChange}
           disabled={disabled}
         />
-        <FilterSelect
+
+        <FilterDropdown
           label="2. System Area / Module"
-          placeholder="Select System Area / Module"
           icon={Layers}
-          value={module}
-          options={moduleOptions}
-          onChange={onModuleChange}
+          placeholder="All System Areas / Modules"
+          value={encodeModuleValue(module, subModule)}
+          selectedLabel={selectedModuleLabel}
+          items={moduleItems}
+          onSelect={(value) => onModuleChange(...decodeModuleValue(value))}
           disabled={disabled}
         />
+
         <button
           type="button"
           onClick={onClear}
@@ -106,6 +151,18 @@ export function DashboardFilters({
           Clear Filters
           <RotateCcw className="h-3.5 w-3.5" aria-hidden />
         </button>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-slate-100 pt-3 text-[11px] text-slate-500">
+        <span className="font-semibold text-slate-600">
+          {matchCount === null
+            ? "Loading tickets..."
+            : `${matchCount} matching ${matchCount === 1 ? "ticket" : "tickets"}`}
+        </span>
+        <span aria-hidden>•</span>
+        <span>{behavior ?? "No filters — showing all project tickets"}</span>
+        <span aria-hidden>•</span>
+        <span>Both filters work on their own or together.</span>
       </div>
     </section>
   );

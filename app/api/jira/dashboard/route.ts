@@ -5,15 +5,12 @@ import type { DashboardData } from "@/types/jira";
 
 export const dynamic = "force-dynamic";
 
+/** Filter values are ids defined in lib/jira/constants.ts, never free text. */
 function sanitizeFilter(value: string | null): string | null {
   if (!value) return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  if (trimmed.length > 120) {
-    throw new Error("Filter value is too long.");
-  }
-  // Reject characters that could be used to inject JQL if ever misused.
-  if (/[\\"\n\r]/.test(trimmed)) {
+  if (trimmed.length > 60 || !/^[a-z0-9-]+$/.test(trimmed)) {
     throw new Error("Invalid filter value.");
   }
   return trimmed;
@@ -26,12 +23,13 @@ export async function GET(
     const { searchParams } = request.nextUrl;
     const people = sanitizeFilter(searchParams.get("people"));
     const moduleFilter = sanitizeFilter(searchParams.get("module"));
+    const subModule = sanitizeFilter(searchParams.get("submodule"));
     const refresh =
       searchParams.get("refresh") === "1" ||
       searchParams.get("refresh") === "true";
 
     const data = await getDashboardData(
-      { people, module: moduleFilter },
+      { people, module: moduleFilter, subModule },
       { forceRefresh: refresh },
     );
 

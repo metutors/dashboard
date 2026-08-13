@@ -1,7 +1,6 @@
 import {
   DEFAULT_ISSUE_FIELDS,
   ISSUE_TYPES,
-  MODULE_LABELS,
   PROJECT_DEFAULTS,
   STATUS_MAPPING,
   TEAMS,
@@ -29,9 +28,6 @@ export interface JiraConfig {
   projectName: string;
   cacheMinutes: number;
   excludeBacklog: boolean;
-  moduleField: string | null;
-  ticketSourceField: string | null;
-  moduleLabels: string[];
   bugTypes: string[];
   taskTypes: string[];
   statusMapping: {
@@ -63,9 +59,6 @@ export function getJiraConfig(): JiraConfig {
     projectName: optional("JIRA_PROJECT_NAME", PROJECT_DEFAULTS.projectName || projectKey),
     cacheMinutes: PROJECT_DEFAULTS.cacheMinutes,
     excludeBacklog: PROJECT_DEFAULTS.excludeBacklog,
-    moduleField: optional("JIRA_MODULE_FIELD") || null,
-    ticketSourceField: optional("JIRA_TICKET_SOURCE_FIELD") || null,
-    moduleLabels: [...MODULE_LABELS],
     bugTypes: [...ISSUE_TYPES.bug],
     taskTypes: [...ISSUE_TYPES.task],
     statusMapping: {
@@ -90,10 +83,3 @@ export function getBrowseUrl(issueKey: string): string {
 }
 
 export { DEFAULT_ISSUE_FIELDS };
-
-export function getConfiguredCustomFields(): string[] {
-  const config = getJiraConfig();
-  return [config.moduleField, config.ticketSourceField].filter(
-    (field): field is string => Boolean(field),
-  );
-}
