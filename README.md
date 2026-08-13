@@ -1,4 +1,4 @@
-# ME Tutors Live Dashboard
+# METutors Live Dashboard
 
 Next.js App Router dashboard that pulls live issue metrics from Jira Cloud and shows them on `/dashboard`.
 

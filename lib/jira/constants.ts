@@ -264,7 +264,7 @@ export const MODULE_TREE: readonly ModuleDefinition[] = [
 ] as const;
 
 export const PROJECT_DEFAULTS = {
-  projectName: "ME TUTORS MVP-II - ME TUTORS",
+  projectName: "METUTORS MVP-II - METUTORS",
   cacheMinutes: 5,
   excludeBacklog: true,
 } as const;

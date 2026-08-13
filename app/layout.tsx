@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ME Tutors Live Dashboard",
-  description: "Live Jira dashboard for ME Tutors",
+  title: "METutors Live Dashboard",
+  description: "Live Jira dashboard for METutors",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

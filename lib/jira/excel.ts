@@ -5,7 +5,7 @@ export async function buildDashboardWorkbook(
   data: DashboardData,
 ): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "ME Tutors Live Dashboard";
+  workbook.creator = "METutors Live Dashboard";
   workbook.created = new Date();
 
   const summary = workbook.addWorksheet("Summary");
