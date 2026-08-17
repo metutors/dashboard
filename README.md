@@ -64,22 +64,21 @@ The dropdowns are fixed lists defined in `lib/jira/constants.ts`, and the API ac
 
 #### Filter 1 — People / Ticket Source (`PEOPLE_FILTERS`)
 
-Each option maps a display name to a Jira user, because the names used on the dashboard differ from Jira:
+Each **Reported by** option matches an exact Jira label on the ticket. **Working** options match In Progress assignees.
 
-| Option | Mode | Jira user | Matches |
+| Option | Mode | Jira label / assignee | Matches |
 | --- | --- | --- | --- |
-| Reported by Usman | reported | Mubashar Hussain | All tickets reported, any status |
-| Reported by Fayez | reported | Fayez Kharbat | All tickets reported, any status |
-| Reported by Farah | reported | Farah | All tickets reported, any status |
-| Reported by Razan | reported | Razan | All tickets reported, any status |
-| Usman Working | working | Mubashar Hussain | Assigned **and** In Progress |
-| Viber Working | working | Ahmed Hassan | Assigned **and** In Progress |
-| Ahtsham Working | working | Ahtsham ul Hassan | Assigned **and** In Progress |
+| Reported by Usman | reported | `ReportedbyUsman` | All tickets with that label, any status |
+| Reported by Fayez | reported | `ReportedbyFayez` | All tickets with that label, any status |
+| Reported by Farah | reported | `ReportedbyFarah` | All tickets with that label, any status |
+| Reported by Razan | reported | `ReportedbyRazan` | All tickets with that label, any status |
+| Usman Working | working | Mubashar Hussain (assignee) | Assigned **and** In Progress |
+| Viber Working | working | Ahmed Hassan (assignee) | Assigned **and** In Progress |
+| Ahtsham Working | working | Ahtsham ul Hassan (assignee) | Assigned **and** In Progress |
 
-- `reported` matches the Jira **reporter** and ignores status.
+- `reported` always matches the **Jira label** configured in `PEOPLE_FILTERS`. Status is ignored.
 - `working` matches the Jira **assignee** and keeps only statuses listed in `STATUS_MAPPING.inProgress`.
-- Names match on the full display name or on any single name token, so `Farah` also matches `Farah <lastname>`.
-- Farah and Razan currently have no tickets in the sprint dataset, so those options show the empty state until such tickets exist.
+- Label matching is case-insensitive (`ReportedbyFayez` matches `Reportedbyfayez`).
 
 #### Filter 2 — System Area / Module (`MODULE_TREE`)
 

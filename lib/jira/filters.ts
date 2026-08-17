@@ -60,11 +60,12 @@ export function matchesPeopleFilter(
   filter: PeopleFilterDefinition,
 ): boolean {
   if (filter.mode === "reported") {
-    return matchesJiraName(issue.fields.reporter?.displayName, filter.jiraNames);
+    if (!filter.jiraLabel) return false;
+    return hasLabel(issueLabels(issue), filter.jiraLabel);
   }
   return (
     isInProgress(issue) &&
-    matchesJiraName(issue.fields.assignee?.displayName, filter.jiraNames)
+    matchesJiraName(issue.fields.assignee?.displayName, filter.jiraNames ?? [])
   );
 }
 
@@ -159,7 +160,7 @@ export function describeFilters(resolved: ResolvedFilters): string {
     const scope =
       resolved.people.mode === "working"
         ? "In Progress tickets assigned"
-        : "all tickets reported";
+        : "tickets with label";
     parts.push(`${resolved.people.label} (${scope})`);
   }
 

@@ -48,10 +48,12 @@ export type PeopleFilterMode = "reported" | "working";
 export interface PeopleFilterDefinition {
   id: string;
   label: string;
-  /** "reported" matches the Jira reporter, "working" matches In Progress assignees. */
+  /** "reported" matches a Jira label; "working" matches In Progress assignees. */
   mode: PeopleFilterMode;
-  /** Jira display names this person maps to. Usman is Mubashar, Viber is Ahmed. */
-  jiraNames: readonly string[];
+  /** Jira assignee display names — working filters only. */
+  jiraNames?: readonly string[];
+  /** Exact Jira label — reported filters only. */
+  jiraLabel?: string;
 }
 
 /** People / Ticket Source dropdown, in display order. */
@@ -60,7 +62,7 @@ export const PEOPLE_FILTERS: readonly PeopleFilterDefinition[] = [
     id: "reported-usman",
     label: "Reported by Usman",
     mode: "reported",
-    jiraNames: ["Mubashar Hussain", "Mubashir Hussain"],
+    jiraLabel: "ReportedbyUsman",
   },
   {
     id: "working-viber",
@@ -84,19 +86,19 @@ export const PEOPLE_FILTERS: readonly PeopleFilterDefinition[] = [
     id: "reported-farah",
     label: "Reported by Farah",
     mode: "reported",
-    jiraNames: ["Farah"],
+    jiraLabel: "ReportedbyFarah",
   },
   {
     id: "reported-fayez",
     label: "Reported by Fayez",
     mode: "reported",
-    jiraNames: ["Fayez Kharbat"],
+    jiraLabel: "ReportedbyFayez",
   },
   {
     id: "reported-razan",
     label: "Reported by Razan",
     mode: "reported",
-    jiraNames: ["Razan"],
+    jiraLabel: "ReportedbyRazan",
   },
 ] as const;
 
