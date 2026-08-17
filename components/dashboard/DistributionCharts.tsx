@@ -2,6 +2,7 @@
 
 import { PieCard, type PieSlice } from "@/components/dashboard/PieCard";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
+import { STATUS_BUCKET_LABELS } from "@/lib/jira/constants";
 import type { DashboardData } from "@/types/jira";
 
 const CHART_COLORS = {
@@ -31,7 +32,11 @@ function statusSlices(counts: DashboardData["bugStatus"]): PieSlice[] {
       value: counts.readyForQA,
       color: CHART_COLORS.readyForQA,
     },
-    { name: "To Do", value: counts.todo, color: CHART_COLORS.todo },
+    {
+      name: STATUS_BUCKET_LABELS.todo,
+      value: counts.todo,
+      color: CHART_COLORS.todo,
+    },
   ];
 }
 

@@ -26,6 +26,24 @@ export const WORKING_STATUSES = [
   "Consider",
 ] as const;
 
+/** User-facing labels for dashboard status buckets. */
+export const STATUS_BUCKET_LABELS = {
+  done: "Done",
+  inProgress: "In Progress",
+  onHold: "On Hold",
+  readyForQA: "Ready for QA",
+  todo: "Pending",
+} as const;
+
+/** Maps Jira status names to dashboard display labels. */
+export function displayStatusName(jiraStatus: string): string {
+  const normalized = jiraStatus.trim().toLowerCase();
+  if (normalized === "to do") {
+    return STATUS_BUCKET_LABELS.todo;
+  }
+  return jiraStatus.trim();
+}
+
 export const TEAMS = {
   backend: {
     label: "BACKEND — AHTSHAM UL HASSAN",

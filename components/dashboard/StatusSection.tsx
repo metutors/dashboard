@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
+import { STATUS_BUCKET_LABELS } from "@/lib/jira/constants";
 import type { StatusCounts } from "@/types/jira";
 
 type StatusTone = "green" | "blue" | "purple" | "orange" | "slate";
@@ -95,7 +96,7 @@ export function StatusSection({ title, accent, counts }: StatusSectionProps) {
           icon={ClipboardCheck}
         />
         <StatusCard
-          label="To Do"
+          label={STATUS_BUCKET_LABELS.todo}
           value={counts.todo}
           tone="slate"
           icon={CircleDashed}

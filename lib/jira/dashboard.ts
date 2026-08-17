@@ -1,6 +1,6 @@
 import { cacheDeleteByPrefix, cacheGet, cacheSet } from "./cache";
 import { getBrowseUrl, getJiraConfig } from "./config";
-import { DISPLAY_NAME_ALIASES } from "./constants";
+import { DISPLAY_NAME_ALIASES, displayStatusName } from "./constants";
 import {
   describeFilters,
   getFilterOptions,
@@ -215,7 +215,7 @@ function buildIssueRows(issues: JiraIssue[]): DashboardIssueRow[] {
       key: issue.key,
       summary: issue.fields.summary,
       type: getIssueTypeName(issue),
-      status: getStatusName(issue),
+      status: displayStatusName(getStatusName(issue)),
       assignee: displayName(getAssigneeName(issue)),
       created: formatDateTime(created),
       resolved: formatDateTime(resolved),

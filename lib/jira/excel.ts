@@ -1,4 +1,5 @@
 import ExcelJS from "exceljs";
+import { STATUS_BUCKET_LABELS } from "./constants";
 import type { DashboardData } from "@/types/jira";
 
 export async function buildDashboardWorkbook(
@@ -29,7 +30,10 @@ export async function buildDashboardWorkbook(
     { metric: "Bug Status — In Progress", value: data.bugStatus.inProgress },
     { metric: "Bug Status — On Hold", value: data.bugStatus.onHold },
     { metric: "Bug Status — Ready for QA", value: data.bugStatus.readyForQA },
-    { metric: "Bug Status — To Do", value: data.bugStatus.todo },
+    {
+      metric: `Bug Status — ${STATUS_BUCKET_LABELS.todo}`,
+      value: data.bugStatus.todo,
+    },
     { metric: "Task Status — Done", value: data.taskStatus.done },
     { metric: "Task Status — In Progress", value: data.taskStatus.inProgress },
     { metric: "Task Status — On Hold", value: data.taskStatus.onHold },
@@ -37,7 +41,10 @@ export async function buildDashboardWorkbook(
       metric: "Task Status — Ready for QA",
       value: data.taskStatus.readyForQA,
     },
-    { metric: "Task Status — To Do", value: data.taskStatus.todo },
+    {
+      metric: `Task Status — ${STATUS_BUCKET_LABELS.todo}`,
+      value: data.taskStatus.todo,
+    },
     { metric: data.teamSplit.backendLabel, value: data.teamSplit.backend },
     { metric: data.teamSplit.frontendLabel, value: data.teamSplit.frontend },
     { metric: data.teamSplit.qaLabel, value: data.teamSplit.qa },
