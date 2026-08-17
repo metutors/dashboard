@@ -32,14 +32,17 @@ export const STATUS_BUCKET_LABELS = {
   inProgress: "In Progress",
   onHold: "On Hold",
   readyForQA: "Ready for QA",
-  todo: "Pending",
+  todo: "Pending/To Do",
 } as const;
+
+/** Ticket list status text when Jira reports "To Do". */
+export const TODO_STATUS_DISPLAY = "Pending";
 
 /** Maps Jira status names to dashboard display labels. */
 export function displayStatusName(jiraStatus: string): string {
   const normalized = jiraStatus.trim().toLowerCase();
   if (normalized === "to do") {
-    return STATUS_BUCKET_LABELS.todo;
+    return TODO_STATUS_DISPLAY;
   }
   return jiraStatus.trim();
 }
