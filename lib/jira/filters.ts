@@ -1,7 +1,7 @@
 import {
   MODULE_TREE,
   PEOPLE_FILTERS,
-  STATUS_MAPPING,
+  WORKING_STATUSES,
   type ModuleDefinition,
   type PeopleFilterDefinition,
   type SubModuleDefinition,
@@ -48,11 +48,9 @@ function matchesJiraName(
   });
 }
 
-function isInProgress(issue: JiraIssue): boolean {
+function isWorkingStatus(issue: JiraIssue): boolean {
   const status = normalize(issue.fields.status?.name);
-  return STATUS_MAPPING.inProgress.some(
-    (name) => normalize(name) === status,
-  );
+  return WORKING_STATUSES.some((name) => normalize(name) === status);
 }
 
 export function matchesPeopleFilter(
@@ -64,7 +62,7 @@ export function matchesPeopleFilter(
     return hasLabel(issueLabels(issue), filter.jiraLabel);
   }
   return (
-    isInProgress(issue) &&
+    isWorkingStatus(issue) &&
     matchesJiraName(issue.fields.assignee?.displayName, filter.jiraNames ?? [])
   );
 }
@@ -159,7 +157,7 @@ export function describeFilters(resolved: ResolvedFilters): string {
   if (resolved.people) {
     const scope =
       resolved.people.mode === "working"
-        ? "In Progress tickets assigned"
+        ? "active tickets assigned"
         : "tickets with label";
     parts.push(`${resolved.people.label} (${scope})`);
   }

@@ -71,7 +71,7 @@ export function DashboardFilters({
     peopleItems.push({
       kind: "heading",
       id: "working",
-      label: "Working — In Progress only",
+      label: "Working — active tickets assigned",
     });
     for (const option of working) {
       peopleItems.push({

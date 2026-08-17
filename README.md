@@ -64,7 +64,7 @@ The dropdowns are fixed lists defined in `lib/jira/constants.ts`, and the API ac
 
 #### Filter 1 — People / Ticket Source (`PEOPLE_FILTERS`)
 
-Each **Reported by** option matches an exact Jira label on the ticket. **Working** options match In Progress assignees.
+Each **Reported by** option matches an exact Jira label on the ticket. **Working** options match active assignees (not Done / Ready for QA).
 
 | Option | Mode | Jira label / assignee | Matches |
 | --- | --- | --- | --- |
@@ -72,12 +72,12 @@ Each **Reported by** option matches an exact Jira label on the ticket. **Working
 | Reported by Fayez | reported | `ReportedbyFayez` | All tickets with that label, any status |
 | Reported by Farah | reported | `ReportedbyFarah` | All tickets with that label, any status |
 | Reported by Razan | reported | `ReportedbyRazan` | All tickets with that label, any status |
-| Usman Working | working | Mubashar Hussain (assignee) | Assigned **and** In Progress |
-| Viber Working | working | Ahmed Hassan (assignee) | Assigned **and** In Progress |
-| Ahtsham Working | working | Ahtsham ul Hassan (assignee) | Assigned **and** In Progress |
+| Usman Working | working | Mubashar Hussain (assignee) | Assigned **and** active status |
+| Viber Working | working | Ahmed Hassan (assignee) | Assigned **and** active status |
+| Ahtsham Working | working | Ahtsham ul Hassan (assignee) | Assigned **and** active status |
 
 - `reported` always matches the **Jira label** configured in `PEOPLE_FILTERS`. Status is ignored.
-- `working` matches the Jira **assignee** and keeps only statuses listed in `STATUS_MAPPING.inProgress`.
+- `working` matches the Jira **assignee** and keeps only statuses listed in `WORKING_STATUSES` (In Progress, On Hold, To Do, Open, Backlog, Re-opened, Changed by Client, Consider).
 - Label matching is case-insensitive (`ReportedbyFayez` matches `Reportedbyfayez`).
 
 #### Filter 2 — System Area / Module (`MODULE_TREE`)
@@ -107,7 +107,7 @@ Label matching is case-insensitive. If a sub-category label has not been applied
 | Selection | Result |
 | --- | --- |
 | Neither | Full project dataset (203 sprint tickets) |
-| People only | Reporter match, or In Progress assignee match |
+| People only | Reporter match, or active assignee match |
 | Module only | Main module, or main + sub module |
 | Both | AND — only tickets matching both |
 

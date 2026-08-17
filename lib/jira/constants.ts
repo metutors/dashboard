@@ -18,6 +18,14 @@ export const STATUS_MAPPING = {
   todo: ["To Do", "Open", "Backlog", "Re-opened", "Changed by Client"],
 } as const;
 
+/** Statuses included by People / Ticket Source "Working" filters. */
+export const WORKING_STATUSES = [
+  ...STATUS_MAPPING.inProgress,
+  ...STATUS_MAPPING.onHold,
+  ...STATUS_MAPPING.todo,
+  "Consider",
+] as const;
+
 export const TEAMS = {
   backend: {
     label: "BACKEND — AHTSHAM UL HASSAN",
@@ -48,7 +56,7 @@ export type PeopleFilterMode = "reported" | "working";
 export interface PeopleFilterDefinition {
   id: string;
   label: string;
-  /** "reported" matches a Jira label; "working" matches In Progress assignees. */
+  /** "reported" matches a Jira label; "working" matches active assignees. */
   mode: PeopleFilterMode;
   /** Jira assignee display names — working filters only. */
   jiraNames?: readonly string[];
