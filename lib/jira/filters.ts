@@ -1,6 +1,7 @@
 import {
   MODULE_TREE,
   PEOPLE_FILTERS,
+  STATUS_MAPPING,
   WORKING_STATUSES,
   type ModuleDefinition,
   type PeopleFilterDefinition,
@@ -53,6 +54,11 @@ function isWorkingStatus(issue: JiraIssue): boolean {
   return WORKING_STATUSES.some((name) => normalize(name) === status);
 }
 
+function isReadyForQA(issue: JiraIssue): boolean {
+  const status = normalize(issue.fields.status?.name);
+  return STATUS_MAPPING.readyForQA.some((name) => normalize(name) === status);
+}
+
 export function matchesPeopleFilter(
   issue: JiraIssue,
   filter: PeopleFilterDefinition,
@@ -61,6 +67,12 @@ export function matchesPeopleFilter(
     if (!filter.jiraLabel) return false;
     return hasLabel(issueLabels(issue), filter.jiraLabel);
   }
+
+  // Ready for QA is shared queue: show assigned and unassigned tickets.
+  if (isReadyForQA(issue)) {
+    return true;
+  }
+
   return (
     isWorkingStatus(issue) &&
     matchesJiraName(issue.fields.assignee?.displayName, filter.jiraNames ?? [])
@@ -157,7 +169,7 @@ export function describeFilters(resolved: ResolvedFilters): string {
   if (resolved.people) {
     const scope =
       resolved.people.mode === "working"
-        ? "active tickets assigned"
+        ? "active tickets assigned (+ all Ready for QA)"
         : "tickets with label";
     parts.push(`${resolved.people.label} (${scope})`);
   }
