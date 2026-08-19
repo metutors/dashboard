@@ -10,10 +10,10 @@ const CHART_COLORS = {
   tasks: "#0284c7",
   done: "#059669",
   inProgress: "#0284c7",
-  onHold: "#7c3aed",
-  readyForQA: "#f97316",
+  onHold: "#3bb3c1",
+  readyForQA: "#ff8e18",
   todo: "#94a3b8",
-  backend: "#7c3aed",
+  backend: "#2b8d99",
   frontend: "#059669",
   qa: "#d97706",
 } as const;

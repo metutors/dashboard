@@ -27,10 +27,10 @@ const accentThemes = {
     chevron: "text-sky-500",
   },
   violet: {
-    bar: "bg-violet-500",
-    header: "from-violet-50/60 to-white",
-    badge: "bg-violet-50 text-violet-700 ring-violet-100",
-    chevron: "text-violet-500",
+    bar: "bg-brand",
+    header: "from-brand-light/70 to-white",
+    badge: "bg-brand-light text-brand-dark ring-brand/20",
+    chevron: "text-brand",
   },
   slate: {
     bar: "bg-slate-400",
@@ -65,7 +65,7 @@ export function CollapsibleSection({
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((current) => !current)}
-          className="flex w-full select-none items-center gap-3 px-4 py-3.5 text-left outline-none transition hover:bg-white/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-200 sm:px-5"
+          className="flex w-full select-none items-center gap-3 px-4 py-3.5 text-left outline-none transition hover:bg-white/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/30 sm:px-5"
         >
           <span
             className={`h-5 w-1 shrink-0 rounded-full ${theme.bar}`}

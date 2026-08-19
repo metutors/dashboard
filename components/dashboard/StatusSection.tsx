@@ -17,16 +17,16 @@ type StatusTone = "green" | "blue" | "purple" | "orange" | "slate";
 const valueClasses: Record<StatusTone, string> = {
   green: "text-emerald-600",
   blue: "text-sky-600",
-  purple: "text-violet-600",
-  orange: "text-orange-500",
+  purple: "text-brand",
+  orange: "text-brand-orange",
   slate: "text-slate-400",
 };
 
 const iconClasses: Record<StatusTone, string> = {
   green: "text-emerald-200",
   blue: "text-sky-200",
-  purple: "text-violet-200",
-  orange: "text-orange-200",
+  purple: "text-brand/30",
+  orange: "text-brand-orange/40",
   slate: "text-slate-200",
 };
 

@@ -12,11 +12,11 @@ const themes: Record<
   { card: string; role: string; value: string; icon: string; iconBg: string }
 > = {
   violet: {
-    card: "border-violet-200 bg-white",
-    role: "text-violet-600",
-    value: "text-violet-700",
-    icon: "text-violet-500",
-    iconBg: "bg-violet-50",
+    card: "border-brand/30 bg-white",
+    role: "text-brand",
+    value: "text-brand-dark",
+    icon: "text-brand",
+    iconBg: "bg-brand-light",
   },
   green: {
     card: "border-emerald-200 bg-white",

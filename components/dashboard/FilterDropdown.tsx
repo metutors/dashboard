@@ -105,7 +105,7 @@ export function FilterDropdown({
       ref={containerRef}
       onKeyDown={handleKeyDown}
     >
-      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-violet-600">
+      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand">
         {label}
       </p>
       <div className="relative">
@@ -118,7 +118,7 @@ export function FilterDropdown({
           aria-controls={open ? listId : undefined}
           disabled={disabled}
           onClick={() => setOpen((current) => !current)}
-          className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white py-2.5 pl-3 pr-3 text-left text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white py-2.5 pl-3 pr-3 text-left text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
           <span className="min-w-0 flex-1 truncate">
@@ -173,7 +173,7 @@ export function FilterDropdown({
                     item.indent ? "pl-8" : "pl-3"
                   } ${item.bold ? "font-semibold" : "font-normal"} ${
                     selected
-                      ? "bg-violet-50 text-violet-700"
+                      ? "bg-brand-light text-brand-dark"
                       : "text-slate-700 hover:bg-slate-50 focus:bg-slate-50"
                   }`}
                 >

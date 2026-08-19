@@ -10,28 +10,28 @@ type HealthTone = "amber" | "rose" | "violet" | "purple";
 const labelClasses: Record<HealthTone, string> = {
   amber: "text-amber-700",
   rose: "text-rose-700",
-  violet: "text-violet-700",
+  violet: "text-brand-dark",
   purple: "text-purple-700",
 };
 
 const valueClasses: Record<HealthTone, string> = {
   amber: "text-amber-600",
   rose: "text-rose-600",
-  violet: "text-violet-600",
+  violet: "text-brand",
   purple: "text-purple-600",
 };
 
 const iconClasses: Record<HealthTone, string> = {
   amber: "text-amber-200",
   rose: "text-rose-200",
-  violet: "text-violet-200",
+  violet: "text-brand/30",
   purple: "text-purple-200",
 };
 
 const borderClasses: Record<HealthTone, string> = {
   amber: "border-amber-200",
   rose: "border-rose-200",
-  violet: "border-violet-200",
+  violet: "border-brand/30",
   purple: "border-purple-200",
 };
 

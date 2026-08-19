@@ -102,7 +102,7 @@ export function MultiSelectFilterDropdown({
       ref={containerRef}
       onKeyDown={handleKeyDown}
     >
-      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-violet-600">
+      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand">
         {label}
       </p>
       <div className="relative">
@@ -115,14 +115,14 @@ export function MultiSelectFilterDropdown({
           aria-controls={open ? listId : undefined}
           disabled={disabled}
           onClick={() => setOpen((current) => !current)}
-          className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white py-2.5 pl-3 pr-3 text-left text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white py-2.5 pl-3 pr-3 text-left text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
           <span className="min-w-0 flex-1 truncate">{displayLabel}</span>
           <span
             className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums ${
               selected.length > 0
-                ? "bg-violet-100 text-violet-700"
+                ? "bg-brand-light text-brand-dark"
                 : "invisible"
             }`}
             aria-hidden={selected.length === 0}
@@ -158,14 +158,14 @@ export function MultiSelectFilterDropdown({
                     onClick={() => toggleValue(option.value)}
                     className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm outline-none transition ${
                       isSelected
-                        ? "bg-violet-50 text-violet-700"
+                        ? "bg-brand-light text-brand-dark"
                         : "text-slate-700 hover:bg-slate-50 focus:bg-slate-50"
                     }`}
                   >
                     <span
                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                         isSelected
-                          ? "border-violet-600 bg-violet-600 text-white"
+                          ? "border-brand bg-brand text-white"
                           : "border-slate-300 bg-white"
                       }`}
                       aria-hidden
@@ -186,7 +186,7 @@ export function MultiSelectFilterDropdown({
                 type="button"
                 onClick={clearAll}
                 disabled={selected.length === 0}
-                className="text-[11px] font-bold uppercase tracking-[0.08em] text-violet-600 transition hover:text-violet-800 disabled:cursor-not-allowed disabled:opacity-40"
+                className="text-[11px] font-bold uppercase tracking-[0.08em] text-brand transition hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Clear
               </button>

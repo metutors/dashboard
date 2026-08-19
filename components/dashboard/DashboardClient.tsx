@@ -162,25 +162,28 @@ export function DashboardClient() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-      <DashboardHeader
-        projectName={data?.projectName ?? "METutors"}
-        lastUpdated={data?.lastUpdatedFormatted ?? null}
-        loading={pending !== null}
-        onPullLive={handlePullLive}
-      />
+      <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        <DashboardHeader
+          projectName={data?.projectName ?? "METutors"}
+          lastUpdated={data?.lastUpdatedFormatted ?? null}
+          loading={pending !== null}
+          onPullLive={handlePullLive}
+        />
 
-      <DashboardFilters
-        people={people}
-        module={module}
-        subModule={subModule}
-        options={data?.filters.options ?? EMPTY_FILTER_OPTIONS}
-        matchCount={showSkeleton ? null : (data?.total ?? null)}
-        behavior={showSkeleton ? null : (data?.filters.behavior ?? null)}
-        onPeopleChange={handlePeopleChange}
-        onModuleChange={handleModuleChange}
-        onClear={handleClearFilters}
-        disabled={initialLoading || pending === "refresh"}
-      />
+        <DashboardFilters
+          embedded
+          people={people}
+          module={module}
+          subModule={subModule}
+          options={data?.filters.options ?? EMPTY_FILTER_OPTIONS}
+          matchCount={showSkeleton ? null : (data?.total ?? null)}
+          behavior={showSkeleton ? null : (data?.filters.behavior ?? null)}
+          onPeopleChange={handlePeopleChange}
+          onModuleChange={handleModuleChange}
+          onClear={handleClearFilters}
+          disabled={initialLoading || pending === "refresh"}
+        />
+      </section>
 
       {statusMessage ? (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-700">

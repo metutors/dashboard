@@ -6,7 +6,7 @@ interface SectionHeadingProps {
 const barClasses: Record<SectionHeadingProps["accent"], string> = {
   red: "bg-rose-500",
   blue: "bg-sky-500",
-  violet: "bg-violet-500",
+  violet: "bg-brand",
   slate: "bg-slate-400",
 };
 

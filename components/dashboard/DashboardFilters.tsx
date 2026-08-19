@@ -33,6 +33,7 @@ interface DashboardFiltersProps {
   onModuleChange: (moduleId: string, subModuleId: string) => void;
   onClear: () => void;
   disabled?: boolean;
+  embedded?: boolean;
 }
 
 export function DashboardFilters({
@@ -46,6 +47,7 @@ export function DashboardFilters({
   onModuleChange,
   onClear,
   disabled,
+  embedded = false,
 }: DashboardFiltersProps) {
   const reportedBy = options.people.filter((item) => item.mode === "reported");
   const working = options.people.filter((item) => item.mode === "working");
@@ -117,8 +119,8 @@ export function DashboardFilters({
       : selectedModule.label
     : null;
 
-  return (
-    <section className="rounded-xl border border-dashed border-violet-300 bg-white p-4">
+  const filtersContent = (
+    <>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
         <FilterDropdown
           label="1. People / Ticket Source"
@@ -146,7 +148,7 @@ export function DashboardFilters({
           type="button"
           onClick={onClear}
           disabled={disabled || (!people && !module)}
-          className="inline-flex shrink-0 items-center gap-2 self-end rounded-md px-2 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 transition hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex shrink-0 items-center gap-2 self-end rounded-md px-2 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 transition hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
         >
           Clear Filters
           <RotateCcw className="h-3.5 w-3.5" aria-hidden />
@@ -168,6 +170,16 @@ export function DashboardFilters({
         <span aria-hidden>•</span>
         <span>Both filters work on their own or together.</span>
       </div>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="px-4 py-4 sm:px-5">{filtersContent}</div>;
+  }
+
+  return (
+    <section className="rounded-xl border border-dashed border-brand/40 bg-white p-4">
+      {filtersContent}
     </section>
   );
 }

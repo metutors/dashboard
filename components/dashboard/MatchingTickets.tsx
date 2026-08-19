@@ -29,7 +29,7 @@ function statusBadgeClasses(status: string): string {
     return "bg-emerald-50 text-emerald-700 ring-emerald-200";
   }
   if (normalized === "on hold") {
-    return "bg-violet-50 text-violet-700 ring-violet-200";
+    return "bg-brand-light text-brand-dark ring-brand/30";
   }
   if (normalized === "ready for qa") {
     return "bg-amber-50 text-amber-700 ring-amber-200";
@@ -113,7 +113,7 @@ export function MatchingTickets({ issues, total }: MatchingTicketsProps) {
       headerExtra={
         <div className="flex w-full min-h-[4.25rem] flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div className="w-full md:max-w-sm md:shrink-0">
-            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-violet-600">
+            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand">
               Search
             </p>
             <div className="relative">
@@ -127,7 +127,7 @@ export function MatchingTickets({ issues, total }: MatchingTicketsProps) {
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search key or summary..."
                 aria-label="Search tickets by key or summary"
-                className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm font-medium text-slate-700 shadow-sm outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-200"
+                className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm font-medium text-slate-700 shadow-sm outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
               />
             </div>
           </div>
@@ -189,7 +189,7 @@ export function MatchingTickets({ issues, total }: MatchingTicketsProps) {
                     href={issue.browseUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-fit text-xs font-bold text-violet-700 hover:underline"
+                    className="w-fit text-xs font-bold text-brand-dark hover:underline"
                   >
                     {issue.key}
                   </a>
