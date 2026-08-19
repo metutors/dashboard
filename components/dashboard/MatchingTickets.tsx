@@ -1,7 +1,13 @@
 "use client";
 
-import { SectionHeading } from "@/components/dashboard/SectionHeading";
-import type { DashboardIssueRow } from "@/types/jira";
+import { useMemo, useState } from "react";
+import { Bug, ListFilter, Search } from "lucide-react";
+import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
+import { MultiSelectFilterDropdown } from "@/components/dashboard/MultiSelectFilterDropdown";
+import { STATUS_FILTER_OPTIONS } from "@/lib/jira/constants";
+import type { DashboardIssueRow, StatusCounts } from "@/types/jira";
+
+const TABLE_HEIGHT_CLASS = "h-[480px]";
 
 function typeBadgeClasses(type: string): string {
   const normalized = type.trim().toLowerCase();
@@ -31,38 +37,149 @@ function statusBadgeClasses(status: string): string {
   return "bg-slate-50 text-slate-600 ring-slate-200";
 }
 
+function normalizeType(type: string): string {
+  return type.trim().toLowerCase();
+}
+
+const statusFilterOptions = STATUS_FILTER_OPTIONS.map((option) => ({
+  value: option.value,
+  label: option.label,
+}));
+
+const typeFilterOptions = [
+  { value: "bug", label: "Bug" },
+  { value: "task", label: "Task" },
+];
+
 interface MatchingTicketsProps {
   issues: DashboardIssueRow[];
   total: number;
 }
 
 export function MatchingTickets({ issues, total }: MatchingTicketsProps) {
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredIssues = useMemo(() => {
+    let results = issues;
+
+    if (statusFilters.length > 0) {
+      const selected = new Set(statusFilters as Array<keyof StatusCounts>);
+      results = results.filter(
+        (issue) => issue.statusBucket != null && selected.has(issue.statusBucket),
+      );
+    }
+
+    if (typeFilters.length > 0) {
+      const selected = new Set(typeFilters);
+      results = results.filter((issue) =>
+        selected.has(normalizeType(issue.type)),
+      );
+    }
+
+    const query = searchQuery.trim().toLowerCase();
+    if (query) {
+      results = results.filter(
+        (issue) =>
+          issue.key.toLowerCase().includes(query) ||
+          issue.summary.toLowerCase().includes(query),
+      );
+    }
+
+    return results;
+  }, [issues, searchQuery, statusFilters, typeFilters]);
+
+  const hasActiveFilters =
+    statusFilters.length > 0 ||
+    typeFilters.length > 0 ||
+    searchQuery.trim().length > 0;
+
+  const ticketCountLabel = hasActiveFilters
+    ? `${filteredIssues.length} of ${total} tickets`
+    : `${total} ${total === 1 ? "ticket" : "tickets"}`;
+
+  const emptyMessage =
+    issues.length === 0
+      ? "No tickets match the current filters."
+      : "No tickets match your search or filters. Try different options or clear the filters.";
+
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <SectionHeading title="Matching Tickets" accent="violet" />
-        <span className="text-[11px] font-semibold tabular-nums text-slate-500">
-          {total} {total === 1 ? "ticket" : "tickets"}
-        </span>
-      </div>
-
-      <article className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        {issues.length === 0 ? (
-          <p className="px-4 py-6 text-center text-xs text-slate-500">
-            No tickets match the current filters.
-          </p>
-        ) : (
-          <div className="max-h-[480px] overflow-y-auto">
-            <div className="sticky top-0 z-10 hidden grid-cols-[7.5rem_4.5rem_minmax(0,1fr)_7rem_9rem] gap-3 border-b border-slate-100 bg-slate-50 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400 md:grid">
-              <span>Key</span>
-              <span>Type</span>
-              <span>Summary</span>
-              <span>Status</span>
-              <span>Assignee</span>
+    <CollapsibleSection
+      title="Matching Tickets"
+      accent="violet"
+      collapsedHint={ticketCountLabel}
+      headerExtra={
+        <div className="flex w-full min-h-[4.25rem] flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div className="w-full md:max-w-sm md:shrink-0">
+            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-violet-600">
+              Search
+            </p>
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                aria-hidden
+              />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search key or summary..."
+                aria-label="Search tickets by key or summary"
+                className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm font-medium text-slate-700 shadow-sm outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-200"
+              />
             </div>
+          </div>
 
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-end md:w-auto md:shrink-0">
+            <MultiSelectFilterDropdown
+              label="Type"
+              icon={Bug}
+              placeholder="All Types"
+              options={typeFilterOptions}
+              selected={typeFilters}
+              onChange={setTypeFilters}
+              selectedCountLabel="types"
+              className="w-full sm:w-44"
+            />
+
+            <MultiSelectFilterDropdown
+              label="Status"
+              icon={ListFilter}
+              placeholder="All Statuses"
+              options={statusFilterOptions}
+              selected={statusFilters}
+              onChange={setStatusFilters}
+              selectedCountLabel="statuses"
+              className="w-full sm:w-52"
+            />
+
+            <span className="w-full shrink-0 pb-2.5 text-right text-[11px] font-semibold tabular-nums text-slate-500 sm:w-28">
+              {ticketCountLabel}
+            </span>
+          </div>
+        </div>
+      }
+    >
+      <div
+        className={`flex ${TABLE_HEIGHT_CLASS} flex-col overflow-hidden rounded-lg border border-slate-100`}
+      >
+        <div className="hidden shrink-0 grid-cols-[7.5rem_4.5rem_minmax(0,1fr)_7rem_9rem] gap-3 border-b border-slate-100 bg-slate-50 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400 md:grid">
+          <span>Key</span>
+          <span>Type</span>
+          <span>Summary</span>
+          <span>Status</span>
+          <span>Assignee</span>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto transition-opacity duration-150">
+          {filteredIssues.length === 0 ? (
+            <div className="flex h-full items-center justify-center px-4 py-6">
+              <p className="text-center text-xs text-slate-500">{emptyMessage}</p>
+            </div>
+          ) : (
             <ul className="divide-y divide-slate-100">
-              {issues.map((issue) => (
+              {filteredIssues.map((issue) => (
                 <li
                   key={issue.key}
                   className="grid grid-cols-1 gap-2 px-4 py-3 md:grid-cols-[7.5rem_4.5rem_minmax(0,1fr)_7rem_9rem] md:items-center md:gap-3"
@@ -82,7 +199,10 @@ export function MatchingTickets({ issues, total }: MatchingTicketsProps) {
                     {issue.type}
                   </span>
 
-                  <p className="min-w-0 truncate text-xs text-slate-700" title={issue.summary}>
+                  <p
+                    className="min-w-0 truncate text-xs text-slate-700"
+                    title={issue.summary}
+                  >
                     {issue.summary}
                   </p>
 
@@ -98,9 +218,9 @@ export function MatchingTickets({ issues, total }: MatchingTicketsProps) {
                 </li>
               ))}
             </ul>
-          </div>
-        )}
-      </article>
-    </section>
+          )}
+        </div>
+      </div>
+    </CollapsibleSection>
   );
 }

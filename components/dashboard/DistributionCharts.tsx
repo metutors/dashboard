@@ -1,7 +1,7 @@
 "use client";
 
 import { PieCard, type PieSlice } from "@/components/dashboard/PieCard";
-import { SectionHeading } from "@/components/dashboard/SectionHeading";
+import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import { STATUS_BUCKET_LABELS } from "@/lib/jira/constants";
 import type { DashboardData } from "@/types/jira";
 
@@ -53,24 +53,36 @@ export function DistributionCharts({ data }: { data: DashboardData }) {
   const teamSlices: PieSlice[] = [
     {
       name: shortTeamLabel(data.teamSplit.backendLabel),
-      value: data.teamSplit.backend,
+      value: data.teamSplit.backend.total,
       color: CHART_COLORS.backend,
     },
     {
       name: shortTeamLabel(data.teamSplit.frontendLabel),
-      value: data.teamSplit.frontend,
+      value: data.teamSplit.frontend.total,
       color: CHART_COLORS.frontend,
     },
     {
       name: shortTeamLabel(data.teamSplit.qaLabel),
-      value: data.teamSplit.qa,
+      value: data.teamSplit.qa.total,
       color: CHART_COLORS.qa,
     },
+    ...(data.teamSplit.unassigned.total > 0
+      ? [
+          {
+            name: "Unassigned",
+            value: data.teamSplit.unassigned.total,
+            color: CHART_COLORS.todo,
+          },
+        ]
+      : []),
   ];
 
   return (
-    <section className="space-y-3">
-      <SectionHeading title="Visual Breakdown" accent="violet" />
+    <CollapsibleSection
+      title="Visual Breakdown"
+      accent="violet"
+      collapsedHint={`${data.total} tickets`}
+    >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <PieCard
           title="Bugs vs Tasks"
@@ -93,6 +105,6 @@ export function DistributionCharts({ data }: { data: DashboardData }) {
           slices={teamSlices}
         />
       </div>
-    </section>
+    </CollapsibleSection>
   );
 }

@@ -5,6 +5,7 @@ import { AverageCloseTimeCard } from "@/components/dashboard/AverageCloseTime";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DistributionCharts } from "@/components/dashboard/DistributionCharts";
+import { HealthKpiCards } from "@/components/dashboard/HealthKpiCards";
 import { KpiCards } from "@/components/dashboard/KpiCards";
 import { LoadingState } from "@/components/dashboard/LoadingState";
 import { MatchingTickets } from "@/components/dashboard/MatchingTickets";
@@ -221,6 +222,8 @@ export function DashboardClient() {
             tasks={data.tasks}
             lastUpdated={data.lastUpdatedFormatted}
           />
+
+          <HealthKpiCards health={data.health} />
 
           <DistributionCharts data={data} />
 

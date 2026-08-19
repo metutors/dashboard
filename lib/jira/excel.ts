@@ -26,6 +26,10 @@ export async function buildDashboardWorkbook(
     { metric: "Total Matching Tickets", value: data.total },
     { metric: "Bugs", value: data.bugs },
     { metric: "Tasks", value: data.tasks },
+    { metric: "Unassigned", value: data.health.unassigned },
+    { metric: "Stale (30+ days)", value: data.health.stale30Days },
+    { metric: "Reopened", value: data.health.reopened },
+    { metric: "On Hold", value: data.health.onHold },
     { metric: "Bug Status — Done", value: data.bugStatus.done },
     { metric: "Bug Status — In Progress", value: data.bugStatus.inProgress },
     { metric: "Bug Status — On Hold", value: data.bugStatus.onHold },
@@ -45,9 +49,22 @@ export async function buildDashboardWorkbook(
       metric: `Task Status — ${STATUS_BUCKET_LABELS.todo}`,
       value: data.taskStatus.todo,
     },
-    { metric: data.teamSplit.backendLabel, value: data.teamSplit.backend },
-    { metric: data.teamSplit.frontendLabel, value: data.teamSplit.frontend },
-    { metric: data.teamSplit.qaLabel, value: data.teamSplit.qa },
+    {
+      metric: data.teamSplit.backendLabel,
+      value: `${data.teamSplit.backend.total} (${data.teamSplit.backend.bugs} bugs, ${data.teamSplit.backend.tasks} tasks, ${data.teamSplit.backend.open} open, ${data.teamSplit.backend.done} done)`,
+    },
+    {
+      metric: data.teamSplit.frontendLabel,
+      value: `${data.teamSplit.frontend.total} (${data.teamSplit.frontend.bugs} bugs, ${data.teamSplit.frontend.tasks} tasks, ${data.teamSplit.frontend.open} open, ${data.teamSplit.frontend.done} done)`,
+    },
+    {
+      metric: data.teamSplit.qaLabel,
+      value: `${data.teamSplit.qa.total} (${data.teamSplit.qa.bugs} bugs, ${data.teamSplit.qa.tasks} tasks, ${data.teamSplit.qa.open} open, ${data.teamSplit.qa.done} done)`,
+    },
+    {
+      metric: "Unassigned",
+      value: `${data.teamSplit.unassigned.total} (${data.teamSplit.unassigned.bugs} bugs, ${data.teamSplit.unassigned.tasks} tasks, ${data.teamSplit.unassigned.open} open, ${data.teamSplit.unassigned.done} done)`,
+    },
     {
       metric: "Avg Time to Close — Bug (days)",
       value: data.averageCloseTime.bugs ?? "N/A",

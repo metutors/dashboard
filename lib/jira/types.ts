@@ -4,6 +4,7 @@ export type {
   DashboardFilters,
   DashboardFilterOptions,
   DashboardIssueRow,
+  HealthMetrics,
   JiraComponent,
   JiraConnectionTestResponse,
   JiraIssue,
@@ -15,5 +16,6 @@ export type {
   JiraUser,
   ResolvedIssue,
   StatusCounts,
+  TeamMemberStats,
   TeamSplit,
 } from "@/types/jira";

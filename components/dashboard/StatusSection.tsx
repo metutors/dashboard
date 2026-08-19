@@ -8,7 +8,7 @@ import {
   PauseCircle,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { SectionHeading } from "@/components/dashboard/SectionHeading";
+import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import { STATUS_BUCKET_LABELS } from "@/lib/jira/constants";
 import type { StatusCounts } from "@/types/jira";
 
@@ -67,9 +67,19 @@ interface StatusSectionProps {
 }
 
 export function StatusSection({ title, accent, counts }: StatusSectionProps) {
+  const total =
+    counts.done +
+    counts.inProgress +
+    counts.onHold +
+    counts.readyForQA +
+    counts.todo;
+
   return (
-    <section className="space-y-3">
-      <SectionHeading title={title} accent={accent} />
+    <CollapsibleSection
+      title={title}
+      accent={accent}
+      collapsedHint={`${total} tickets`}
+    >
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <StatusCard
           label="Done"
@@ -102,6 +112,6 @@ export function StatusSection({ title, accent, counts }: StatusSectionProps) {
           icon={CircleDashed}
         />
       </div>
-    </section>
+    </CollapsibleSection>
   );
 }

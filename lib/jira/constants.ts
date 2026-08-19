@@ -35,6 +35,18 @@ export const STATUS_BUCKET_LABELS = {
   todo: "Pending/To Do",
 } as const;
 
+/** Options for the matching-tickets status filter. */
+export const STATUS_FILTER_OPTIONS = [
+  { value: "done", label: STATUS_BUCKET_LABELS.done },
+  { value: "inProgress", label: STATUS_BUCKET_LABELS.inProgress },
+  { value: "onHold", label: STATUS_BUCKET_LABELS.onHold },
+  { value: "readyForQA", label: STATUS_BUCKET_LABELS.readyForQA },
+  { value: "todo", label: STATUS_BUCKET_LABELS.todo },
+] as const satisfies ReadonlyArray<{
+  value: keyof typeof STATUS_BUCKET_LABELS;
+  label: string;
+}>;
+
 /** Ticket list status text when Jira reports "To Do". */
 export const TODO_STATUS_DISPLAY = "Pending";
 

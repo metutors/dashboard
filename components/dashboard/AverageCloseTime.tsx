@@ -1,6 +1,7 @@
 "use client";
 
 import { Bug, ClipboardList } from "lucide-react";
+import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import type { ResolvedIssue } from "@/types/jira";
 
 type Tone = "bug" | "task";
@@ -52,34 +53,39 @@ export function AverageCloseTimeCard({
   const Icon = tone === "bug" ? Bug : ClipboardList;
 
   return (
-    <article
-      className={`rounded-xl border bg-white p-5 shadow-sm ${styles.border}`}
+    <CollapsibleSection
+      title={title}
+      accent={tone === "bug" ? "red" : "blue"}
+      collapsedHint={
+        days == null ? `${count} ${countLabel}` : `${days.toFixed(1)}d avg · ${count}`
+      }
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p
-            className={`text-[10px] font-bold uppercase tracking-[0.14em] ${styles.label}`}
-          >
-            {title}
-          </p>
-          <p
-            className={`mt-2 text-[34px] font-extrabold leading-none tabular-nums ${styles.value}`}
-          >
-            {days == null ? "—" : `${days.toFixed(1)}d`}
-          </p>
-          <p className="mt-1.5 text-xs text-slate-500">
-            based on {count} {countLabel}
-          </p>
+      <div className="space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p
+              className={`text-[10px] font-bold uppercase tracking-[0.14em] ${styles.label}`}
+            >
+              Average
+            </p>
+            <p
+              className={`mt-2 text-[34px] font-extrabold leading-none tabular-nums ${styles.value}`}
+            >
+              {days == null ? "—" : `${days.toFixed(1)}d`}
+            </p>
+            <p className="mt-1.5 text-xs text-slate-500">
+              based on {count} {countLabel}
+            </p>
+          </div>
+          <Icon className={`h-9 w-9 ${styles.icon}`} aria-hidden />
         </div>
-        <Icon className={`h-9 w-9 ${styles.icon}`} aria-hidden />
-      </div>
 
       {issues.length === 0 ? (
-        <p className="mt-4 rounded-lg bg-slate-50 px-4 py-4 text-xs text-slate-500">
+        <p className="rounded-lg bg-slate-50 px-4 py-4 text-xs text-slate-500">
           No resolved issues found for the current filters.
         </p>
       ) : (
-        <div className="mt-4 border-t border-slate-100">
+        <div className="overflow-hidden rounded-lg border border-slate-100">
           <div className="max-h-[420px] divide-y divide-slate-100 overflow-y-auto">
             {issues.map((issue) => (
               <div
@@ -108,6 +114,7 @@ export function AverageCloseTimeCard({
           </div>
         </div>
       )}
-    </article>
+      </div>
+    </CollapsibleSection>
   );
 }

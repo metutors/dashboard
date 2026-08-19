@@ -25,6 +25,7 @@ interface FilterDropdownProps {
   items: FilterDropdownItem[];
   onSelect: (value: string) => void;
   disabled?: boolean;
+  className?: string;
 }
 
 export function FilterDropdown({
@@ -36,6 +37,7 @@ export function FilterDropdown({
   items,
   onSelect,
   disabled,
+  className,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -98,7 +100,11 @@ export function FilterDropdown({
   }
 
   return (
-    <div className="min-w-0 flex-1" ref={containerRef} onKeyDown={handleKeyDown}>
+    <div
+      className={className ?? "min-w-0 flex-1"}
+      ref={containerRef}
+      onKeyDown={handleKeyDown}
+    >
       <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-violet-600">
         {label}
       </p>

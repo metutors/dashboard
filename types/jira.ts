@@ -73,13 +73,29 @@ export interface StatusCounts {
   todo: number;
 }
 
+export interface TeamMemberStats {
+  total: number;
+  bugs: number;
+  tasks: number;
+  open: number;
+  done: number;
+}
+
 export interface TeamSplit {
-  backend: number;
-  frontend: number;
-  qa: number;
+  backend: TeamMemberStats;
+  frontend: TeamMemberStats;
+  qa: TeamMemberStats;
+  unassigned: TeamMemberStats;
   backendLabel: string;
   frontendLabel: string;
   qaLabel: string;
+}
+
+export interface HealthMetrics {
+  unassigned: number;
+  stale30Days: number;
+  reopened: number;
+  onHold: number;
 }
 
 export interface AverageCloseTime {
@@ -104,6 +120,7 @@ export interface DashboardIssueRow {
   summary: string;
   type: string;
   status: string;
+  statusBucket: keyof StatusCounts | null;
   assignee: string | null;
   created: string | null;
   resolved: string | null;
@@ -166,6 +183,7 @@ export interface DashboardData {
   bugStatus: StatusCounts;
   taskStatus: StatusCounts;
   teamSplit: TeamSplit;
+  health: HealthMetrics;
   averageCloseTime: AverageCloseTime;
   resolvedBugs: ResolvedIssue[];
   resolvedTasks: ResolvedIssue[];

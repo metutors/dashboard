@@ -13,13 +13,17 @@ import type {
   DashboardData,
   DashboardFilters,
   DashboardIssueRow,
+  HealthMetrics,
   JiraIssue,
   ResolvedIssue,
   StatusCounts,
+  TeamMemberStats,
   TeamSplit,
 } from "@/types/jira";
 
 const ISSUES_CACHE_PREFIX = "jira:issues:";
+const STALE_DAYS = 30;
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 function normalizeName(value: string | null | undefined): string {
   return (value ?? "").trim().toLowerCase();
@@ -131,6 +135,65 @@ function isTask(issue: JiraIssue): boolean {
   );
 }
 
+function isDone(issue: JiraIssue): boolean {
+  return categorizeStatus(getStatusName(issue)) === "done";
+}
+
+function isReopenedStatus(issue: JiraIssue): boolean {
+  return normalizeName(getStatusName(issue)) === "re-opened";
+}
+
+function emptyTeamMemberStats(): TeamMemberStats {
+  return { total: 0, bugs: 0, tasks: 0, open: 0, done: 0 };
+}
+
+function incrementTeamStats(stats: TeamMemberStats, issue: JiraIssue): void {
+  stats.total += 1;
+  if (isBug(issue)) stats.bugs += 1;
+  if (isTask(issue)) stats.tasks += 1;
+  if (isDone(issue)) {
+    stats.done += 1;
+  } else if (categorizeStatus(getStatusName(issue))) {
+    stats.open += 1;
+  }
+}
+
+function buildHealthMetrics(issues: JiraIssue[]): HealthMetrics {
+  const now = Date.now();
+  const staleThresholdMs = STALE_DAYS * MS_PER_DAY;
+  let unassigned = 0;
+  let stale30Days = 0;
+  let reopened = 0;
+  let onHold = 0;
+
+  for (const issue of issues) {
+    if (!getAssigneeName(issue)) {
+      unassigned += 1;
+    }
+
+    if (isReopenedStatus(issue)) {
+      reopened += 1;
+    }
+
+    const category = categorizeStatus(getStatusName(issue));
+    if (category === "onHold") {
+      onHold += 1;
+    }
+
+    if (category && category !== "done") {
+      const created = issue.fields.created;
+      if (created) {
+        const age = now - new Date(created).getTime();
+        if (age > staleThresholdMs) {
+          stale30Days += 1;
+        }
+      }
+    }
+  }
+
+  return { unassigned, stale30Days, reopened, onHold };
+}
+
 function buildStatusCounts(issues: JiraIssue[]): StatusCounts {
   const counts = emptyStatusCounts();
   for (const issue of issues) {
@@ -142,31 +205,36 @@ function buildStatusCounts(issues: JiraIssue[]): StatusCounts {
 
 function buildTeamSplit(issues: JiraIssue[]): TeamSplit {
   const config = getJiraConfig();
-  const backend = parseCsvList(config.backendUsers);
-  const frontend = parseCsvList(config.frontendUsers);
-  const qa = parseCsvList(config.qaUsers);
+  const backendUsers = parseCsvList(config.backendUsers);
+  const frontendUsers = parseCsvList(config.frontendUsers);
+  const qaUsers = parseCsvList(config.qaUsers);
 
-  let backendCount = 0;
-  let frontendCount = 0;
-  let qaCount = 0;
+  const backend = emptyTeamMemberStats();
+  const frontend = emptyTeamMemberStats();
+  const qa = emptyTeamMemberStats();
+  const unassigned = emptyTeamMemberStats();
 
   for (const issue of issues) {
     const assignee = normalizeName(getAssigneeName(issue));
-    if (!assignee) continue;
+    if (!assignee) {
+      incrementTeamStats(unassigned, issue);
+      continue;
+    }
 
-    if (backend.has(assignee)) {
-      backendCount += 1;
-    } else if (frontend.has(assignee)) {
-      frontendCount += 1;
-    } else if (qa.has(assignee)) {
-      qaCount += 1;
+    if (backendUsers.has(assignee)) {
+      incrementTeamStats(backend, issue);
+    } else if (frontendUsers.has(assignee)) {
+      incrementTeamStats(frontend, issue);
+    } else if (qaUsers.has(assignee)) {
+      incrementTeamStats(qa, issue);
     }
   }
 
   return {
-    backend: backendCount,
-    frontend: frontendCount,
-    qa: qaCount,
+    backend,
+    frontend,
+    qa,
+    unassigned,
     backendLabel: config.backendLabel,
     frontendLabel: config.frontendLabel,
     qaLabel: config.qaLabel,
@@ -216,6 +284,7 @@ function buildIssueRows(issues: JiraIssue[]): DashboardIssueRow[] {
       summary: issue.fields.summary,
       type: getIssueTypeName(issue),
       status: displayStatusName(getStatusName(issue)),
+      statusBucket: categorizeStatus(getStatusName(issue)),
       assignee: displayName(getAssigneeName(issue)),
       created: formatDateTime(created),
       resolved: formatDateTime(resolved),
@@ -296,6 +365,7 @@ export async function getDashboardData(
     bugStatus: buildStatusCounts(bugs),
     taskStatus: buildStatusCounts(tasks),
     teamSplit: buildTeamSplit(filtered),
+    health: buildHealthMetrics(filtered),
     averageCloseTime,
     resolvedBugs,
     resolvedTasks,

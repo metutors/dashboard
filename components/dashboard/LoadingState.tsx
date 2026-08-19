@@ -15,6 +15,12 @@ export function LoadingState() {
         <SkeletonBlock className="h-28" />
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((card) => (
+          <SkeletonBlock key={card} className="h-24" />
+        ))}
+      </div>
+
       <div className="space-y-3">
         <SkeletonBlock className="h-3 w-32" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -26,10 +32,11 @@ export function LoadingState() {
 
       <div className="space-y-3">
         <SkeletonBlock className="h-3 w-24" />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <SkeletonBlock className="h-44" />
+          <SkeletonBlock className="h-44" />
+          <SkeletonBlock className="h-44" />
+          <SkeletonBlock className="h-44" />
         </div>
       </div>
 
