@@ -5,6 +5,7 @@ import { useId, useState, type ReactNode } from "react";
 
 interface CollapsibleSectionProps {
   title: string;
+  description?: string;
   accent: "red" | "blue" | "violet" | "slate";
   defaultOpen?: boolean;
   headerExtra?: ReactNode;
@@ -41,6 +42,7 @@ const accentThemes = {
 
 export function CollapsibleSection({
   title,
+  description,
   accent,
   defaultOpen = true,
   headerExtra,
@@ -69,9 +71,16 @@ export function CollapsibleSection({
             className={`h-5 w-1 shrink-0 rounded-full ${theme.bar}`}
             aria-hidden
           />
-          <span className="min-w-0 flex-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-700">
-            {title}
-          </span>
+          <div className="min-w-0 flex-1">
+            <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-700">
+              {title}
+            </span>
+            {description ? (
+              <span className="mt-0.5 block truncate text-[11px] font-normal normal-case tracking-normal text-slate-500">
+                {description}
+              </span>
+            ) : null}
+          </div>
           {!open && collapsedHint ? (
             <span
               className={`max-w-[40%] shrink-0 truncate rounded-full px-2.5 py-1 text-[11px] font-semibold tabular-nums ring-1 ring-inset ${theme.badge}`}

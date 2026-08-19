@@ -83,6 +83,7 @@ export function HealthKpiCards({ health }: { health: HealthMetrics }) {
   return (
     <CollapsibleSection
       title="Health Indicators"
+      description="Tickets that may need attention right now."
       accent="violet"
       collapsedHint={`${alerts} flagged`}
     >

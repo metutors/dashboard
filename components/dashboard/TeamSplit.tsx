@@ -168,6 +168,7 @@ export function TeamSplitSection({ teamSplit }: { teamSplit: TeamSplit }) {
   return (
     <CollapsibleSection
       title="Team Split"
+      description="Workload per person — bugs, tasks, open, and done."
       accent="violet"
       collapsedHint={`${total} tickets`}
     >

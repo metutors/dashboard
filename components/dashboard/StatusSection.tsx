@@ -77,6 +77,11 @@ export function StatusSection({ title, accent, counts }: StatusSectionProps) {
   return (
     <CollapsibleSection
       title={title}
+      description={
+        accent === "red"
+          ? "Where bugs sit across the workflow."
+          : "Where tasks sit across the workflow."
+      }
       accent={accent}
       collapsedHint={`${total} tickets`}
     >

@@ -55,6 +55,11 @@ export function AverageCloseTimeCard({
   return (
     <CollapsibleSection
       title={title}
+      description={
+        tone === "bug"
+          ? "Average days from created to resolved for bugs."
+          : "Average days from created to resolved for tasks."
+      }
       accent={tone === "bug" ? "red" : "blue"}
       collapsedHint={
         days == null ? `${count} ${countLabel}` : `${days.toFixed(1)}d avg · ${count}`

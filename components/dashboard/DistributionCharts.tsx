@@ -80,6 +80,7 @@ export function DistributionCharts({ data }: { data: DashboardData }) {
   return (
     <CollapsibleSection
       title="Visual Breakdown"
+      description="How tickets split by type, status, and team."
       accent="violet"
       collapsedHint={`${data.total} tickets`}
     >

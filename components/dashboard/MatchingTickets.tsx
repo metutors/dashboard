@@ -107,6 +107,7 @@ export function MatchingTickets({ issues, total }: MatchingTicketsProps) {
   return (
     <CollapsibleSection
       title="Matching Tickets"
+      description="All tickets matching your current filters."
       accent="violet"
       collapsedHint={ticketCountLabel}
       headerExtra={
