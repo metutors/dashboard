@@ -22,6 +22,7 @@ export const STATUS_MAPPING = {
 export const WORKING_STATUSES = [
   ...STATUS_MAPPING.inProgress,
   ...STATUS_MAPPING.onHold,
+  ...STATUS_MAPPING.readyForQA,
   ...STATUS_MAPPING.todo,
   "Consider",
 ] as const;
