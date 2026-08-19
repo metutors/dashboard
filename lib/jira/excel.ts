@@ -59,7 +59,7 @@ export async function buildDashboardWorkbook(
     },
     {
       metric: data.teamSplit.qaLabel,
-      value: `${data.teamSplit.qa.total} (${data.teamSplit.qa.bugs} bugs, ${data.teamSplit.qa.tasks} tasks, ${data.teamSplit.qa.open} open, ${data.teamSplit.qa.done} done)`,
+      value: `${data.teamSplit.qa.total} (${data.teamSplit.qa.bugs} bugs, ${data.teamSplit.qa.tasks} tasks, ${data.teamSplit.qa.readyForQA} ready for QA, ${data.teamSplit.qa.open} open, ${data.teamSplit.qa.done} done)`,
     },
     {
       metric: "Unassigned",

@@ -144,18 +144,25 @@ function isReopenedStatus(issue: JiraIssue): boolean {
 }
 
 function emptyTeamMemberStats(): TeamMemberStats {
-  return { total: 0, bugs: 0, tasks: 0, open: 0, done: 0 };
+  return { total: 0, bugs: 0, tasks: 0, open: 0, done: 0, readyForQA: 0 };
 }
 
 function incrementTeamStats(stats: TeamMemberStats, issue: JiraIssue): void {
   stats.total += 1;
   if (isBug(issue)) stats.bugs += 1;
   if (isTask(issue)) stats.tasks += 1;
-  if (isDone(issue)) {
+  const category = categorizeStatus(getStatusName(issue));
+  if (category === "done") {
     stats.done += 1;
-  } else if (categorizeStatus(getStatusName(issue))) {
+  } else if (category === "readyForQA") {
+    stats.readyForQA += 1;
+  } else if (category) {
     stats.open += 1;
   }
+}
+
+function isReadyForQAIssue(issue: JiraIssue): boolean {
+  return categorizeStatus(getStatusName(issue)) === "readyForQA";
 }
 
 function buildHealthMetrics(issues: JiraIssue[]): HealthMetrics {
@@ -216,6 +223,13 @@ function buildTeamSplit(issues: JiraIssue[]): TeamSplit {
 
   for (const issue of issues) {
     const assignee = normalizeName(getAssigneeName(issue));
+    const qaAssignee = Boolean(assignee && qaUsers.has(assignee));
+
+    if (isReadyForQAIssue(issue) || qaAssignee) {
+      incrementTeamStats(qa, issue);
+      continue;
+    }
+
     if (!assignee) {
       incrementTeamStats(unassigned, issue);
       continue;
@@ -225,8 +239,6 @@ function buildTeamSplit(issues: JiraIssue[]): TeamSplit {
       incrementTeamStats(backend, issue);
     } else if (frontendUsers.has(assignee)) {
       incrementTeamStats(frontend, issue);
-    } else if (qaUsers.has(assignee)) {
-      incrementTeamStats(qa, issue);
     }
   }
 

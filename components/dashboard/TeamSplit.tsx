@@ -69,11 +69,11 @@ function StatMini({
   bgClass: string;
 }) {
   return (
-    <div className={`rounded-lg px-3 py-2 ${bgClass}`}>
+    <div className={`flex min-h-[3.75rem] flex-col justify-center rounded-lg px-3 py-2 ${bgClass}`}>
       <p className={`text-lg font-bold tabular-nums leading-none ${valueClass}`}>
         {value}
       </p>
-      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+      <p className="mt-1 text-[10px] font-bold uppercase leading-tight tracking-[0.12em] text-slate-500">
         {label}
       </p>
     </div>
@@ -85,18 +85,20 @@ function TeamCard({
   stats,
   tone,
   icon: Icon,
+  variant = "default",
 }: {
   label: string;
   stats: TeamMemberStats;
   tone: TeamTone;
   icon: LucideIcon;
+  variant?: "default" | "qa";
 }) {
   const theme = themes[tone];
   const { role, name } = parseTeamLabel(label);
 
   return (
     <article
-      className={`rounded-xl border px-5 py-4 shadow-sm ${theme.card}`}
+      className={`flex h-full flex-col rounded-xl border px-5 py-4 shadow-sm ${theme.card}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -124,7 +126,7 @@ function TeamCard({
         {stats.total}
       </p>
 
-      <div className="mt-4 space-y-2 border-t border-slate-100 pt-3">
+      <div className="mt-4 min-h-[10.5rem] space-y-2 border-t border-slate-100 pt-3">
         <div className="grid grid-cols-2 gap-2">
           <StatMini
             value={stats.bugs}
@@ -139,20 +141,44 @@ function TeamCard({
             bgClass="bg-sky-50/80"
           />
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <StatMini
-            value={stats.open}
-            label="Open"
-            valueClass="text-amber-600"
-            bgClass="bg-amber-50/80"
-          />
-          <StatMini
-            value={stats.done}
-            label="Done"
-            valueClass="text-emerald-600"
-            bgClass="bg-emerald-50/80"
-          />
-        </div>
+        {variant === "qa" ? (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <StatMini
+                value={stats.readyForQA}
+                label="Ready for QA"
+                valueClass="text-brand-orange"
+                bgClass="bg-orange-50/80"
+              />
+              <StatMini
+                value={stats.done}
+                label="Done"
+                valueClass="text-emerald-600"
+                bgClass="bg-emerald-50/80"
+              />
+            </div>
+            {stats.open > 0 ? (
+              <p className="text-center text-[10px] font-semibold text-amber-600">
+                + {stats.open} active assigned
+              </p>
+            ) : null}
+          </>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            <StatMini
+              value={stats.open}
+              label="Open"
+              valueClass="text-amber-600"
+              bgClass="bg-amber-50/80"
+            />
+            <StatMini
+              value={stats.done}
+              label="Done"
+              valueClass="text-emerald-600"
+              bgClass="bg-emerald-50/80"
+            />
+          </div>
+        )}
       </div>
     </article>
   );
@@ -168,11 +194,11 @@ export function TeamSplitSection({ teamSplit }: { teamSplit: TeamSplit }) {
   return (
     <CollapsibleSection
       title="Team Split"
-      description="Workload per person — bugs, tasks, open, and done."
+      description="Workload per person — bugs, tasks, open or ready for QA, and done."
       accent="violet"
       collapsedHint={`${total} tickets`}
     >
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 md:items-stretch xl:grid-cols-4">
         <TeamCard
           label={teamSplit.backendLabel}
           stats={teamSplit.backend}
@@ -190,6 +216,7 @@ export function TeamSplitSection({ teamSplit }: { teamSplit: TeamSplit }) {
           stats={teamSplit.qa}
           tone="amber"
           icon={ClipboardCheck}
+          variant="qa"
         />
         <TeamCard
           label="Unassigned"

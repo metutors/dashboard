@@ -79,6 +79,7 @@ export interface TeamMemberStats {
   tasks: number;
   open: number;
   done: number;
+  readyForQA: number;
 }
 
 export interface TeamSplit {
