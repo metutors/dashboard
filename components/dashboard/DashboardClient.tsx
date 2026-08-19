@@ -162,7 +162,7 @@ export function DashboardClient() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
+      <section className="relative z-20 rounded-xl border border-slate-200/80 bg-white shadow-sm">
         <DashboardHeader
           projectName={data?.projectName ?? "METutors"}
           lastUpdated={data?.lastUpdatedFormatted ?? null}

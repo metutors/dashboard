@@ -101,7 +101,7 @@ export function FilterDropdown({
 
   return (
     <div
-      className={className ?? "min-w-0 flex-1"}
+      className={className ?? "min-w-0 flex-1 overflow-visible"}
       ref={containerRef}
       onKeyDown={handleKeyDown}
     >
@@ -138,7 +138,7 @@ export function FilterDropdown({
             ref={listRef}
             role="listbox"
             aria-label={label}
-            className="absolute left-0 right-0 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-xl"
+            className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-xl"
           >
             {items.map((item, index) => {
               if (item.kind === "heading") {

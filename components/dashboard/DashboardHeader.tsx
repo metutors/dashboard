@@ -24,7 +24,7 @@ export function DashboardHeader({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 border-b border-brand/10 bg-gradient-to-r from-brand-light/80 via-brand-light/40 to-white px-4 py-3 sm:px-5">
+      <div className="flex items-center justify-between gap-4 rounded-t-xl border-b border-brand/10 bg-gradient-to-r from-brand-light/80 via-brand-light/40 to-white px-4 py-3 sm:px-5">
         <a
           href="https://metutors.com"
           target="_blank"

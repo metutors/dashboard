@@ -121,7 +121,7 @@ export function DashboardFilters({
 
   const filtersContent = (
     <>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+      <div className="flex flex-col gap-4 overflow-visible lg:flex-row lg:items-end">
         <FilterDropdown
           label="1. People / Ticket Source"
           icon={User}
@@ -174,7 +174,11 @@ export function DashboardFilters({
   );
 
   if (embedded) {
-    return <div className="px-4 py-4 sm:px-5">{filtersContent}</div>;
+    return (
+      <div className="relative overflow-visible rounded-b-xl px-4 py-4 sm:px-5">
+        {filtersContent}
+      </div>
+    );
   }
 
   return (

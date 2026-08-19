@@ -98,7 +98,7 @@ export function MultiSelectFilterDropdown({
 
   return (
     <div
-      className={className ?? "min-w-0 flex-1"}
+      className={className ?? "min-w-0 flex-1 overflow-visible"}
       ref={containerRef}
       onKeyDown={handleKeyDown}
     >
@@ -143,7 +143,7 @@ export function MultiSelectFilterDropdown({
             role="listbox"
             aria-label={label}
             aria-multiselectable="true"
-            className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl"
+            className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl"
           >
             <div className="max-h-72 overflow-y-auto py-1">
               {options.map((option) => {
