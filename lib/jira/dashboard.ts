@@ -96,6 +96,7 @@ function emptyStatusCounts(): StatusCounts {
     inProgress: 0,
     onHold: 0,
     readyForQA: 0,
+    reopened: 0,
     todo: 0,
   };
 }
@@ -109,6 +110,7 @@ function categorizeStatus(statusName: string): keyof StatusCounts | null {
     ["inProgress", statusMapping.inProgress],
     ["onHold", statusMapping.onHold],
     ["readyForQA", statusMapping.readyForQA],
+    ["reopened", statusMapping.reopened],
     ["todo", statusMapping.todo],
   ];
 
@@ -140,7 +142,7 @@ function isDone(issue: JiraIssue): boolean {
 }
 
 function isReopenedStatus(issue: JiraIssue): boolean {
-  return normalizeName(getStatusName(issue)) === "re-opened";
+  return categorizeStatus(getStatusName(issue)) === "reopened";
 }
 
 function emptyTeamMemberStats(): TeamMemberStats {

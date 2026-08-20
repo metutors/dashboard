@@ -35,6 +35,10 @@ export async function buildDashboardWorkbook(
     { metric: "Bug Status — On Hold", value: data.bugStatus.onHold },
     { metric: "Bug Status — Ready for QA", value: data.bugStatus.readyForQA },
     {
+      metric: `Bug Status — ${STATUS_BUCKET_LABELS.reopened}`,
+      value: data.bugStatus.reopened,
+    },
+    {
       metric: `Bug Status — ${STATUS_BUCKET_LABELS.todo}`,
       value: data.bugStatus.todo,
     },
@@ -44,6 +48,10 @@ export async function buildDashboardWorkbook(
     {
       metric: "Task Status — Ready for QA",
       value: data.taskStatus.readyForQA,
+    },
+    {
+      metric: `Task Status — ${STATUS_BUCKET_LABELS.reopened}`,
+      value: data.taskStatus.reopened,
     },
     {
       metric: `Task Status — ${STATUS_BUCKET_LABELS.todo}`,

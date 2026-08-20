@@ -70,6 +70,7 @@ export interface StatusCounts {
   inProgress: number;
   onHold: number;
   readyForQA: number;
+  reopened: number;
   todo: number;
 }
 

@@ -15,7 +15,8 @@ export const STATUS_MAPPING = {
   inProgress: ["In Progress"],
   onHold: ["On Hold"],
   readyForQA: ["Ready for QA"],
-  todo: ["To Do", "Open", "Backlog", "Re-opened", "Changed by Client"],
+  reopened: ["Re-opened"],
+  todo: ["To Do", "Open", "Backlog", "Changed by Client"],
 } as const;
 
 /** Statuses included by People / Ticket Source "Working" filters. */
@@ -23,6 +24,7 @@ export const WORKING_STATUSES = [
   ...STATUS_MAPPING.inProgress,
   ...STATUS_MAPPING.onHold,
   ...STATUS_MAPPING.readyForQA,
+  ...STATUS_MAPPING.reopened,
   ...STATUS_MAPPING.todo,
   "Consider",
 ] as const;
@@ -33,6 +35,7 @@ export const STATUS_BUCKET_LABELS = {
   inProgress: "In Progress",
   onHold: "On Hold",
   readyForQA: "Ready for QA",
+  reopened: "Reopened",
   todo: "Pending/To Do",
 } as const;
 
@@ -42,6 +45,7 @@ export const STATUS_FILTER_OPTIONS = [
   { value: "inProgress", label: STATUS_BUCKET_LABELS.inProgress },
   { value: "onHold", label: STATUS_BUCKET_LABELS.onHold },
   { value: "readyForQA", label: STATUS_BUCKET_LABELS.readyForQA },
+  { value: "reopened", label: STATUS_BUCKET_LABELS.reopened },
   { value: "todo", label: STATUS_BUCKET_LABELS.todo },
 ] as const satisfies ReadonlyArray<{
   value: keyof typeof STATUS_BUCKET_LABELS;
@@ -56,6 +60,9 @@ export function displayStatusName(jiraStatus: string): string {
   const normalized = jiraStatus.trim().toLowerCase();
   if (normalized === "to do") {
     return TODO_STATUS_DISPLAY;
+  }
+  if (normalized === "re-opened") {
+    return STATUS_BUCKET_LABELS.reopened;
   }
   return jiraStatus.trim();
 }

@@ -6,19 +6,21 @@ import {
   ClipboardCheck,
   Loader,
   PauseCircle,
+  RotateCcw,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import { STATUS_BUCKET_LABELS } from "@/lib/jira/constants";
 import type { StatusCounts } from "@/types/jira";
 
-type StatusTone = "green" | "blue" | "purple" | "orange" | "slate";
+type StatusTone = "green" | "blue" | "purple" | "orange" | "rose" | "slate";
 
 const valueClasses: Record<StatusTone, string> = {
   green: "text-emerald-600",
   blue: "text-sky-600",
   purple: "text-brand",
   orange: "text-brand-orange",
+  rose: "text-rose-600",
   slate: "text-slate-400",
 };
 
@@ -27,6 +29,7 @@ const iconClasses: Record<StatusTone, string> = {
   blue: "text-sky-200",
   purple: "text-brand/30",
   orange: "text-brand-orange/40",
+  rose: "text-rose-200",
   slate: "text-slate-200",
 };
 
@@ -72,6 +75,7 @@ export function StatusSection({ title, accent, counts }: StatusSectionProps) {
     counts.inProgress +
     counts.onHold +
     counts.readyForQA +
+    counts.reopened +
     counts.todo;
 
   return (
@@ -85,7 +89,7 @@ export function StatusSection({ title, accent, counts }: StatusSectionProps) {
       accent={accent}
       collapsedHint={`${total} tickets`}
     >
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <StatusCard
           label="Done"
           value={counts.done}
@@ -109,6 +113,12 @@ export function StatusSection({ title, accent, counts }: StatusSectionProps) {
           value={counts.readyForQA}
           tone="orange"
           icon={ClipboardCheck}
+        />
+        <StatusCard
+          label={STATUS_BUCKET_LABELS.reopened}
+          value={counts.reopened}
+          tone="rose"
+          icon={RotateCcw}
         />
         <StatusCard
           label={STATUS_BUCKET_LABELS.todo}

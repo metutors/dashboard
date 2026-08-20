@@ -35,6 +35,7 @@ export interface JiraConfig {
     inProgress: string[];
     onHold: string[];
     readyForQA: string[];
+    reopened: string[];
     todo: string[];
   };
   backendUsers: string[];
@@ -68,6 +69,7 @@ export function getJiraConfig(): JiraConfig {
       inProgress: [...STATUS_MAPPING.inProgress],
       onHold: [...STATUS_MAPPING.onHold],
       readyForQA: [...STATUS_MAPPING.readyForQA],
+      reopened: [...STATUS_MAPPING.reopened],
       todo: [...STATUS_MAPPING.todo],
     },
     backendUsers: [...TEAMS.backend.users],

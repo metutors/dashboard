@@ -12,6 +12,7 @@ const CHART_COLORS = {
   inProgress: "#0284c7",
   onHold: "#3bb3c1",
   readyForQA: "#ff8e18",
+  reopened: "#e11d48",
   todo: "#94a3b8",
   backend: "#2b8d99",
   frontend: "#059669",
@@ -31,6 +32,11 @@ function statusSlices(counts: DashboardData["bugStatus"]): PieSlice[] {
       name: "Ready for QA",
       value: counts.readyForQA,
       color: CHART_COLORS.readyForQA,
+    },
+    {
+      name: STATUS_BUCKET_LABELS.reopened,
+      value: counts.reopened,
+      color: CHART_COLORS.reopened,
     },
     {
       name: STATUS_BUCKET_LABELS.todo,

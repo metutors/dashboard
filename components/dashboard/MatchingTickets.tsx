@@ -34,6 +34,9 @@ function statusBadgeClasses(status: string): string {
   if (normalized === "ready for qa") {
     return "bg-amber-50 text-amber-700 ring-amber-200";
   }
+  if (normalized === "re-opened" || normalized === "reopened") {
+    return "bg-rose-50 text-rose-700 ring-rose-200";
+  }
   return "bg-slate-50 text-slate-600 ring-slate-200";
 }
 
