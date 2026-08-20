@@ -64,6 +64,12 @@ export function matchesPeopleFilter(
   filter: PeopleFilterDefinition,
 ): boolean {
   if (filter.mode === "reported") {
+    if (
+      filter.reporterNames?.length &&
+      matchesJiraName(issue.fields.reporter?.displayName, filter.reporterNames)
+    ) {
+      return true;
+    }
     if (!filter.jiraLabel) return false;
     return hasLabel(issueLabels(issue), filter.jiraLabel);
   }
@@ -170,7 +176,9 @@ export function describeFilters(resolved: ResolvedFilters): string {
     const scope =
       resolved.people.mode === "working"
         ? "active tickets assigned (+ all Ready for QA)"
-        : "tickets with label";
+        : resolved.people.reporterNames?.length
+          ? "tickets with label or matching reporter"
+          : "tickets with label";
     parts.push(`${resolved.people.label} (${scope})`);
   }
 

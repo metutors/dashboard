@@ -103,6 +103,8 @@ export interface PeopleFilterDefinition {
   jiraNames?: readonly string[];
   /** Exact Jira label — reported filters only. */
   jiraLabel?: string;
+  /** Jira reporter display names — reported filters only (OR with label). */
+  reporterNames?: readonly string[];
 }
 
 /** People / Ticket Source dropdown, in display order. */
@@ -112,6 +114,7 @@ export const PEOPLE_FILTERS: readonly PeopleFilterDefinition[] = [
     label: "Reported by Usman",
     mode: "reported",
     jiraLabel: "ReportedbyUsman",
+    reporterNames: ["Mubashar Hussain", "Mubashir Hussain"],
   },
   {
     id: "working-viber",
